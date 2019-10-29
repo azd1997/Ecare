@@ -1,0 +1,9 @@
+{
+  "mockEcgSource": "../mitdb/100.csv",
+  "port": 3997,
+  "brokerIp": "tcp://127.0.0.1:1883",
+  "mqttClientId": "patient100",
+  "mqttProtocolVer": 4,
+  "mqttUserName": "eiger",
+  "mqttUserPassword": "123456"
+}

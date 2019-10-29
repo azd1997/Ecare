@@ -1,0 +1,13 @@
+{
+  "ipv4": "127.0.0.1",
+  "port": 9999,
+  "seedNode": "127.0.0.1:8888",
+  "brokerAddr": "127.0.0.1:7777",
+
+  "账号注册信息": "",
+  "registerInfo": {
+    "name": "Eiger",
+    "phone": "13311118888",
+    "institution": "SCUT"
+  }
+}
