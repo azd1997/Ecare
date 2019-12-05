@@ -3,8 +3,9 @@ package account
 import (
 	"bytes"
 
-	"github.com/azd1997/Ecare/ecoin/utils"
 	"github.com/mr-tron/base58"
+
+	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
 // UserId 用户身份标识符，包含标识符和角色编号两个属性

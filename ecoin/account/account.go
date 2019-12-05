@@ -12,10 +12,11 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/azd1997/Ecare/ecoin/log"
-	"github.com/azd1997/Ecare/ecoin/utils"
 	"github.com/mr-tron/base58"
 	"golang.org/x/crypto/ripemd160"
+
+	"github.com/azd1997/Ecare/ecoin/log"
+	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
 // Account 账户，包含私钥和公钥，标志唯一身份。UserID是外部可见的标志
