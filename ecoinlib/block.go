@@ -15,6 +15,7 @@ type BlockHeader struct {
 	PrevHash Hash
 	Hash     Hash   // 当前区块哈希，实际是区块体内交易列表组成的MerkleTree的根哈希
 	// TODO: 增加MerkleRoot字段
+	MerkleRoot Hash
 	CreateBy UserID // 由哪个账户创建
 }
 
