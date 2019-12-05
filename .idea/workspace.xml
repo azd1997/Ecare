@@ -1,7 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="6f8c5013-be63-48a1-a983-cc2da3ff1566" name="Default Changelist" comment="" />
+=======
+    <list default="true" id="6f8c5013-be63-48a1-a983-cc2da3ff1566" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/ecoin/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/account.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/account_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/accounts.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/constants.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/interface.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/privkey.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/pubkey.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/signature.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/account/userid.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/doc/account.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/doc/accounts.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/log/color-log.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/utils/encode.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/utils/errors.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/utils/hash.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/utils/mkdir.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/utils/pathexists.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/utils/savefile.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+>>>>>>> Stashed changes
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,7 +48,7 @@
     <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/example/general" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/ecoin" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -32,15 +58,15 @@
     <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoProjectSettingsConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/patient/protocol" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ecoin" />
       <recent name="$PROJECT_DIR$/example/general" />
       <recent name="$PROJECT_DIR$/ecoinlib/log" />
       <recent name="$PROJECT_DIR$/common/ecoinlib/types" />
       <recent name="$PROJECT_DIR$/common/ecoinlib/log" />
-      <recent name="$PROJECT_DIR$/protocol" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/patient/protocol" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -55,69 +81,69 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Go Test.TestUCTXPWithGobEncode in github.com/azd1997/Ecare/ecoinlib">
-    <configuration name="TestExtractDirFromFilePath in github.com/azd1997/Ecare/ecoinlib" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Go Test.TestAccounts_LoadFileWithGobDecode in github.com/azd1997/Ecare/ecoin/account">
+    <configuration name="TestAccount_Sign in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="Ecare" />
-      <working_directory value="$PROJECT_DIR$/ecoinlib" />
+      <working_directory value="$PROJECT_DIR$/ecoin/account" />
       <framework value="gotest" />
       <kind value="PACKAGE" />
-      <package value="github.com/azd1997/Ecare/ecoinlib" />
+      <package value="github.com/azd1997/Ecare/ecoin/account" />
       <directory value="$PROJECT_DIR$/" />
       <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestExtractDirFromFilePath$" />
+      <pattern value="^TestAccount_Sign$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestGobEncodeInterface in github.com/azd1997/Ecare/ecoinlib" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestAccount_UserID in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="Ecare" />
-      <working_directory value="$PROJECT_DIR$/ecoinlib" />
+      <working_directory value="$PROJECT_DIR$/ecoin/account" />
       <framework value="gotest" />
       <kind value="PACKAGE" />
-      <package value="github.com/azd1997/Ecare/ecoinlib" />
+      <package value="github.com/azd1997/Ecare/ecoin/account" />
       <directory value="$PROJECT_DIR$/" />
       <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestGobEncodeInterface$" />
+      <pattern value="^TestAccount_UserID$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestStartNode in github.com/azd1997/Ecare/ecoinlib" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestAccounts_AddAccount in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="Ecare" />
-      <working_directory value="$PROJECT_DIR$/ecoinlib" />
+      <working_directory value="$PROJECT_DIR$/ecoin/account" />
       <framework value="gotest" />
       <kind value="PACKAGE" />
-      <package value="github.com/azd1997/Ecare/ecoinlib" />
+      <package value="github.com/azd1997/Ecare/ecoin/account" />
       <directory value="$PROJECT_DIR$/" />
       <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestStartNode$" />
+      <pattern value="^TestAccounts_AddAccount$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestUCTXP in github.com/azd1997/Ecare/ecoinlib" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestAccounts_LoadFileWithGobDecode in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="Ecare" />
-      <working_directory value="$PROJECT_DIR$/ecoinlib" />
+      <working_directory value="$PROJECT_DIR$/ecoin/account" />
       <framework value="gotest" />
       <kind value="PACKAGE" />
-      <package value="github.com/azd1997/Ecare/ecoinlib" />
+      <package value="github.com/azd1997/Ecare/ecoin/account" />
       <directory value="$PROJECT_DIR$/" />
       <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestUCTXP$" />
+      <pattern value="^TestAccounts_LoadFileWithGobDecode$" />
       <method v="2" />
     </configuration>
-    <configuration name="TestUCTXPWithGobEncode in github.com/azd1997/Ecare/ecoinlib" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+    <configuration name="TestAccounts_SaveFileWithGobEncode in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="Ecare" />
-      <working_directory value="$PROJECT_DIR$/ecoinlib" />
+      <working_directory value="$PROJECT_DIR$/ecoin/account" />
       <framework value="gotest" />
       <kind value="PACKAGE" />
-      <package value="github.com/azd1997/Ecare/ecoinlib" />
+      <package value="github.com/azd1997/Ecare/ecoin/account" />
       <directory value="$PROJECT_DIR$/" />
       <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestUCTXPWithGobEncode$" />
+      <pattern value="^TestAccounts_SaveFileWithGobEncode$" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Go Test.TestUCTXPWithGobEncode in github.com/azd1997/Ecare/ecoinlib" />
-        <item itemvalue="Go Test.TestExtractDirFromFilePath in github.com/azd1997/Ecare/ecoinlib" />
-        <item itemvalue="Go Test.TestStartNode in github.com/azd1997/Ecare/ecoinlib" />
-        <item itemvalue="Go Test.TestUCTXP in github.com/azd1997/Ecare/ecoinlib" />
-        <item itemvalue="Go Test.TestGobEncodeInterface in github.com/azd1997/Ecare/ecoinlib" />
+        <item itemvalue="Go Test.TestAccounts_LoadFileWithGobDecode in github.com/azd1997/Ecare/ecoin/account" />
+        <item itemvalue="Go Test.TestAccounts_SaveFileWithGobEncode in github.com/azd1997/Ecare/ecoin/account" />
+        <item itemvalue="Go Test.TestAccounts_AddAccount in github.com/azd1997/Ecare/ecoin/account" />
+        <item itemvalue="Go Test.TestAccount_Sign in github.com/azd1997/Ecare/ecoin/account" />
+        <item itemvalue="Go Test.TestAccount_UserID in github.com/azd1997/Ecare/ecoin/account" />
       </list>
     </recent_temporary>
   </component>

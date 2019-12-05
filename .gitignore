@@ -1,3 +1,5 @@
 /ecoinlib/tmp
 /example/general/tmp
+*.accounts
+*.account
 
