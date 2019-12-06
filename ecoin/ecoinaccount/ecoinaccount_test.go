@@ -2,9 +2,11 @@ package eaccount
 
 import (
 	"fmt"
-	"github.com/azd1997/Ecare/ecoin/account"
 	"sync"
 	"testing"
+
+	"github.com/azd1997/Ecare/ecoin/account"
+	"github.com/azd1997/Ecare/ecoin/common"
 )
 
 func TestEcoinAccounts(t *testing.T) {
@@ -30,7 +32,7 @@ func TestEcoinAccounts(t *testing.T) {
 		UserId:id,
 		PubKeyField:acc.PubKey,
 		BalanceCoin:0,
-		RoleField:Role{
+		RoleField: common.Role{
 			NoField:             1,
 			AliasField:          "hospital",
 			InitialField:        0,

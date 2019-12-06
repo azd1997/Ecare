@@ -1,5 +1,7 @@
 package account
 
+import "github.com/azd1997/Ecare/ecoin/common"
+
 // IAccount 账户接口
 type IAccount interface {
 
@@ -12,7 +14,7 @@ type IAccount interface {
 	/*签名与验证*/
 
 	// Sign 签名
-	Sign(target []byte) (Signature, error)
+	Sign(target []byte) (common.Signature, error)
 
 	// VerifySign 验证签名
 	VerifySign(target []byte, sig []byte, pubKey []byte) bool

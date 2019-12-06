@@ -15,6 +15,7 @@ import (
 	"github.com/mr-tron/base58"
 	"golang.org/x/crypto/ripemd160"
 
+	"github.com/azd1997/Ecare/ecoin/common"
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
@@ -108,7 +109,7 @@ func (a *Account) UserId() (UserId, error) {
 }
 
 // Sign 使用该账号对目标数据作签名。目标数据只能是基础类型、结构体、切片、表等，必须提前转为[]byte
-func (a *Account) Sign(target []byte) (sig Signature, err error) {
+func (a *Account) Sign(target []byte) (sig common.Signature, err error) {
 	privateKey := a.PrivKey.PrivateKey(a.PubKey.PublicKey())
 	r, s, err := ecdsa.Sign(rand.Reader, &privateKey, target)
 	if err != nil {

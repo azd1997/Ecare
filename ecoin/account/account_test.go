@@ -2,9 +2,8 @@ package account
 
 import (
 	"fmt"
+	"github.com/azd1997/Ecare/ecoin/common"
 	"testing"
-
-	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
 func TestNewAccount(t *testing.T) {
@@ -45,7 +44,7 @@ func TestAccount_Sign(t *testing.T) {
 	}
 	fmt.Printf("%s\n", acc)
 
-	targetForSign := utils.RandomHash()
+	targetForSign := common.RandomHash()
 	fmt.Printf("Hash: %s\n", targetForSign)
 
 	sig, err := acc.Sign(targetForSign[:])

@@ -30,6 +30,9 @@ type EAccounts struct {
 
 // TODO: 这里的存储与加载部分待DB模块实现之后进行修改
 
+// TODO: 直接使用json/gob等编码解码，由于RWMutex内部都是不导出整型数字，所以会被还原成0出来。但在这里其实是可以的，因为文件加载eaccounts
+//  只存在于程序初启动时，运行中不会从文件读取。
+
 // CreateEcoinAccountsFromJsonFile 从文件创建新的自己账户表(用于在还没有EcoinAccounts时的创建)
 func CreateEcoinAccountsFromJsonFile(file string) (*EAccounts, error) {
 	accounts := EAccounts{}
