@@ -2,4 +2,4 @@
 /example/general/tmp
 *.accounts
 *.account
-
+*.eaccounts
