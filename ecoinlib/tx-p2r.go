@@ -180,7 +180,7 @@ func (tx *TxP2R) Deserialize(p2rBytes []byte) (err error) {
 func (tx *TxP2R) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxP2R{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		From:fromID,
 		R2PBytes:    r2pBytes,

@@ -137,7 +137,7 @@ func (tx *TxCoinbase) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxCoinbase{
 		BaseTransaction:BaseTransaction{
-			ID:Hash{},
+			Id:Hash{},
 			Time:UnixTimeStamp(0),
 			To:UserID{},
 			Amount:Coin(1),

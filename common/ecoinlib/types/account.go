@@ -266,7 +266,7 @@ func (a *EcoinAccount) Available() bool {
                                                     EcoinAccountMap相关
 *********************************************************************************************************************/
 
-// EcoinAccountsMap 系统账户表 存储每个账户的可公开的信息，包括余额、角色（角色中定义了其币相关的规则）、公钥、可用状态。键值为UserID.ID
+// EcoinAccountsMap 系统账户表 存储每个账户的可公开的信息，包括余额、角色（角色中定义了其币相关的规则）、公钥、可用状态。键值为UserID.Id
 // TODO: 后期将之改为状态树或者叫账户树。因为现在这么做如果账户很多其实占用很大。
 type EcoinAccounts struct {
 	Map map[string]*EcoinAccount

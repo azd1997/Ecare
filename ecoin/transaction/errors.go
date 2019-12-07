@@ -39,6 +39,7 @@ var (
 	ErrUnknownPurchaseType = errors.New("unknown purchase type")
 	ErrTXNotInUCTXP = errors.New("the tx is not in uctxp")
 	ErrUnmatchedTxReceiver = errors.New("unmatched tx receiver")
+	ErrUnmatchedTxSender = errors.New("unmatched tx sender")
 	ErrEmptySoureTX = errors.New("empty source tx")
 	ErrInvalidCoinbaseTX = errors.New("invalid coinbase tx")
 	ErrInvalidArbitrateTX = errors.New("invalid arbitrate tx")

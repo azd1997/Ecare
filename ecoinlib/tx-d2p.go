@@ -171,7 +171,7 @@ func (tx *TxD2P) Deserialize(d2pBytes []byte) (err error) {
 func (tx *TxD2P) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxD2P{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		From:fromID,
 		P2DBytes:    p2dBytes,

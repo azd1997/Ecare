@@ -369,7 +369,7 @@ package types
 //
 //// BaseTransaction 基交易，包含所有具体交易类型包含的共同属性。
 //type BaseTransaction struct {
-//	ID          Hash          `json:"id"`
+//	Id          Hash          `json:"id"`
 //	Time        UnixTimeStamp `json:"time"`
 //	To          UserID        `json:"to"`
 //	Amount      Coin          `json:"amount"`
@@ -439,7 +439,7 @@ package types
 //	// 构造tx
 //	tx = &TxCoinbase{
 //		BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -452,14 +452,14 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxCoinbase", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	return tx, nil
 //}
 //
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxCoinbase) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID = Hash{}
+//	txCopy.Id = Hash{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxCoinbase_Hash", err)
@@ -547,7 +547,7 @@ package types
 //
 ///*	tx = &TxCoinbase{
 //		BaseTransaction:BaseTransaction{
-//			ID:Hash{},
+//			Id:Hash{},
 //			Time:UnixTimeStamp(0),
 //			To:UserID{},
 //			Amount:Coin(1),
@@ -570,7 +570,7 @@ package types
 //	if tx.To.RoleNo >= 10 {
 //		return false, utils.WrapError("TxCoinbase_IsValid", ErrNoCoinbasePermitRole)
 //	}
-//	toEcoinAccount, ok := gsm.accounts[tx.To.ID]
+//	toEcoinAccount, ok := gsm.accounts[tx.To.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxCoinbase_IsValid", ErrNonexistentUserID)
 //	}
@@ -585,7 +585,7 @@ package types
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxCoinbase_IsValid", ErrWrongTXID)
 //	}
 //
@@ -620,7 +620,7 @@ package types
 //	// 构造tx
 //	tx = &TxGeneral{
 //		BaseTransaction: BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -635,7 +635,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxGeneral", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := from.Sign(id[:])
 //	if err != nil {
@@ -648,7 +648,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxGeneral) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{} // 置空值
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{} // 置空值
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxGeneral_Hash", err)
@@ -737,7 +737,7 @@ package types
 //
 //	/*	tx = &TxGeneral{
 //			BaseTransaction: BaseTransaction{
-//				ID:          Hash{},
+//				Id:          Hash{},
 //				Time:        UnixTimeStamp(time.Now().Unix()),
 //				To:          to,
 //				Amount:      amount,
@@ -758,7 +758,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxGeneral_IsValid", ErrInvalidUserID)
 //	}
-//	toEcoinAccount, ok := gsm.accounts[tx.To.ID]
+//	toEcoinAccount, ok := gsm.accounts[tx.To.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxGeneral_IsValid", ErrNonexistentUserID)
 //	}
@@ -771,7 +771,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxGeneral_IsValid", ErrInvalidUserID)
 //	}
-//	fromEcoinAccount, ok := gsm.accounts[tx.From.ID]
+//	fromEcoinAccount, ok := gsm.accounts[tx.From.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxGeneral_IsValid", ErrNonexistentUserID)
 //	}
@@ -781,13 +781,13 @@ package types
 //	if tx.Amount > fromEcoinAccount.Balance() {
 //		return false, utils.WrapError("TxGeneral_IsValid", ErrNotSufficientBalance)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, fromEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxGeneral_IsValid", ErrInconsistentSignature)
 //	}
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxGeneral_IsValid", ErrWrongTXID)
 //	}
 //
@@ -822,7 +822,7 @@ package types
 //	// 构造tx
 //	tx = &TxR2P{
 //		BaseTransaction: BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -840,7 +840,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxR2P", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := from.Sign(id[:])
 //	if err != nil {
@@ -858,7 +858,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxR2P) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, fmt.Errorf("TxGeneral_Hash: %s", err)
@@ -983,7 +983,7 @@ package types
 //
 //	/*	tx = &TxR2P{
 //		BaseTransaction: BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -1006,7 +1006,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxR2P_IsValid", ErrInvalidUserID)
 //	}
-//	toEcoinAccount, ok := gsm.accounts[tx.To.ID]
+//	toEcoinAccount, ok := gsm.accounts[tx.To.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxR2P_IsValid", ErrNonexistentUserID)
 //	}
@@ -1019,7 +1019,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxR2P_IsValid", ErrInvalidUserID)
 //	}
-//	fromEcoinAccount, ok := gsm.accounts[tx.From.ID]
+//	fromEcoinAccount, ok := gsm.accounts[tx.From.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxR2P_IsValid", ErrNonexistentUserID)
 //	}
@@ -1029,7 +1029,7 @@ package types
 //	if tx.Amount > fromEcoinAccount.Balance() {
 //		return false, utils.WrapError("TxR2P_IsValid", ErrNotSufficientBalance)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, fromEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxR2P_IsValid", ErrInconsistentSignature)
 //	}
 //
@@ -1042,14 +1042,14 @@ package types
 //		if err != nil {
 //			return false, utils.WrapError("TxR2P_IsValid", err)
 //		}
-//		if _, ok := gsm.uctxp[prevTx.ID]; !ok {
+//		if _, ok := gsm.uctxp[prevTx.Id]; !ok {
 //			return false, utils.WrapError("TxR2P_IsValid", ErrNotUncompletedTX)
 //		}
 //	}
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxR2P_IsValid", ErrWrongTXID)
 //	}
 //
@@ -1058,7 +1058,7 @@ package types
 //
 //// TxP2R 第三方研究机构向病人发起的数据交易的阶段二交易
 //type TxP2R struct {
-//	ID          Hash          `json:"id"`
+//	Id          Hash          `json:"id"`
 //	Time        UnixTimeStamp `json:"time"`
 //	From        UserID       `json:"from"`
 //	R2PBytes    []byte        `json:"r2pBytes"`
@@ -1083,7 +1083,7 @@ package types
 //
 //	// 构造tx
 //	tx = &TxP2R{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		From:fromID,
 //		R2PBytes:    r2pBytes,
@@ -1097,7 +1097,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxP2R", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := from.Sign(id[:])
 //	if err != nil {
@@ -1110,7 +1110,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxP2R) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxP2R_Hash", err)
@@ -1209,7 +1209,7 @@ package types
 //func (tx *TxP2R) IsValid(gsm *GlobalStateMachine) (valid bool, err error) {
 //
 //	/*	tx = &TxP2R{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		From:fromID,
 //		R2PBytes:    r2pBytes,
@@ -1228,14 +1228,14 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxP2R_IsValid", ErrInvalidUserID)
 //	}
-//	fromEcoinAccount, ok := gsm.accounts[tx.From.ID]
+//	fromEcoinAccount, ok := gsm.accounts[tx.From.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxP2R_IsValid", ErrNonexistentUserID)
 //	}
 //	if !fromEcoinAccount.Available() {
 //		return false, utils.WrapError("TxP2R_IsValid", ErrUnavailableUserID)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, fromEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxP2R_IsValid", ErrInconsistentSignature)
 //	}
 //
@@ -1248,14 +1248,14 @@ package types
 //		if err != nil {
 //			return false, utils.WrapError("TxP2R_IsValid", err)
 //		}
-//		if _, ok := gsm.uctxp[prevTx.ID]; !ok {
+//		if _, ok := gsm.uctxp[prevTx.Id]; !ok {
 //			return false, utils.WrapError("TxP2R_IsValid", ErrNotUncompletedTX)
 //		}
 //	}
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxP2R_IsValid", ErrWrongTXID)
 //	}
 //
@@ -1289,7 +1289,7 @@ package types
 //	// 构造tx
 //	tx = &TxP2H{
 //		BaseTransaction: BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -1306,7 +1306,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxP2H", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := from.Sign(id[:])
 //	if err != nil {
@@ -1319,7 +1319,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxP2H) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxP2H_Hash", err)
@@ -1431,7 +1431,7 @@ package types
 //
 //	/*	tx = &TxP2H{
 //		BaseTransaction: BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -1453,7 +1453,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxP2H_IsValid", ErrInvalidUserID)
 //	}
-//	toEcoinAccount, ok := gsm.accounts[tx.To.ID]
+//	toEcoinAccount, ok := gsm.accounts[tx.To.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxP2H_IsValid", ErrNonexistentUserID)
 //	}
@@ -1466,7 +1466,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxP2H_IsValid", ErrInvalidUserID)
 //	}
-//	fromEcoinAccount, ok := gsm.accounts[tx.From.ID]
+//	fromEcoinAccount, ok := gsm.accounts[tx.From.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxP2H_IsValid", ErrNonexistentUserID)
 //	}
@@ -1476,7 +1476,7 @@ package types
 //	if tx.Amount > fromEcoinAccount.Balance() {
 //		return false, utils.WrapError("TxP2H_IsValid", ErrNotSufficientBalance)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, fromEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxP2H_IsValid", ErrInconsistentSignature)
 //	}
 //
@@ -1489,7 +1489,7 @@ package types
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxP2H_IsValid", ErrWrongTXID)
 //	}
 //
@@ -1498,7 +1498,7 @@ package types
 //
 //// TxH2P 病人向医院发起的心电数据诊断，分人工和机器自动分析两种。阶段二
 //type TxH2P struct {
-//	ID          Hash          `json:"id"`
+//	Id          Hash          `json:"id"`
 //	Time        UnixTimeStamp `json:"time"`
 //	From UserID `json:"from"`
 //	P2HBytes    []byte        `json:"p2hBytes"`
@@ -1523,7 +1523,7 @@ package types
 //
 //	// 构造tx
 //	tx = &TxH2P{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		From:fromID,
 //		P2HBytes:    p2hBytes,
@@ -1537,7 +1537,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxH2P", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := from.Sign(id[:])
 //	if err != nil {
@@ -1550,7 +1550,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxH2P) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxH2P_Hash", err)
@@ -1648,7 +1648,7 @@ package types
 //func (tx *TxH2P) IsValid(gsm *GlobalStateMachine) (valid bool, err error) {
 //
 //	/*	tx = &TxH2P{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		From:fromID,
 //		P2HBytes:    p2hBytes,
@@ -1667,14 +1667,14 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxH2P_IsValid", ErrInvalidUserID)
 //	}
-//	fromEcoinAccount, ok := gsm.accounts[tx.From.ID]
+//	fromEcoinAccount, ok := gsm.accounts[tx.From.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxH2P_IsValid", ErrNonexistentUserID)
 //	}
 //	if !fromEcoinAccount.Available() {
 //		return false, utils.WrapError("TxH2P_IsValid", ErrUnavailableUserID)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, fromEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxH2P_IsValid", ErrInconsistentSignature)
 //	}
 //
@@ -1687,14 +1687,14 @@ package types
 //		if err != nil {
 //			return false, utils.WrapError("TxH2P_IsValid", err)
 //		}
-//		if _, ok := gsm.uctxp[prevTx.ID]; !ok {
+//		if _, ok := gsm.uctxp[prevTx.Id]; !ok {
 //			return false, utils.WrapError("TxH2P_IsValid", ErrNotUncompletedTX)
 //		}
 //	}
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxH2P_IsValid", ErrWrongTXID)
 //	}
 //
@@ -1727,7 +1727,7 @@ package types
 //	// 构造tx
 //	tx = &TxP2D{
 //		BaseTransaction: BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -1743,7 +1743,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxP2D", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := from.Sign(id[:])
 //	if err != nil {
@@ -1756,7 +1756,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxP2D) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxP2D_Hash", err)
@@ -1866,7 +1866,7 @@ package types
 //
 //	/*	tx = &TxP2D{
 //		BaseTransaction: BaseTransaction{
-//			ID:          Hash{},
+//			Id:          Hash{},
 //			Time:        UnixTimeStamp(time.Now().Unix()),
 //			To:          to,
 //			Amount:      amount,
@@ -1887,7 +1887,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxP2D_IsValid", ErrInvalidUserID)
 //	}
-//	toEcoinAccount, ok := gsm.accounts[tx.To.ID]
+//	toEcoinAccount, ok := gsm.accounts[tx.To.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxP2D_IsValid", ErrNonexistentUserID)
 //	}
@@ -1900,7 +1900,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxP2D_IsValid", ErrInvalidUserID)
 //	}
-//	fromEcoinAccount, ok := gsm.accounts[tx.From.ID]
+//	fromEcoinAccount, ok := gsm.accounts[tx.From.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxP2D_IsValid", ErrNonexistentUserID)
 //	}
@@ -1910,7 +1910,7 @@ package types
 //	if tx.Amount > fromEcoinAccount.Balance() {
 //		return false, utils.WrapError("TxP2D_IsValid", ErrNotSufficientBalance)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, fromEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxP2D_IsValid", ErrInconsistentSignature)
 //	}
 //
@@ -1918,7 +1918,7 @@ package types
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxP2D_IsValid", ErrWrongTXID)
 //	}
 //
@@ -1927,7 +1927,7 @@ package types
 //
 //// TxP2D 病人向下班医生发起的心电诊断交易，阶段一
 //type TxD2P struct {
-//	ID          Hash          `json:"id"`
+//	Id          Hash          `json:"id"`
 //	Time        UnixTimeStamp `json:"time"`
 //	From UserID `json:"from"`
 //	P2DBytes    []byte        `json:"p2dBytes"`
@@ -1952,7 +1952,7 @@ package types
 //
 //	// 构造tx
 //	tx = &TxD2P{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		From:fromID,
 //		P2DBytes:    p2dBytes,
@@ -1966,7 +1966,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxD2P", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := from.Sign(id[:])
 //	if err != nil {
@@ -1979,7 +1979,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxD2P) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxD2P_Hash", err)
@@ -2077,7 +2077,7 @@ package types
 //func (tx *TxD2P) IsValid(gsm *GlobalStateMachine) (valid bool, err error) {
 //
 //	/*	tx = &TxD2P{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		From:fromID,
 //		P2DBytes:    p2dBytes,
@@ -2096,14 +2096,14 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxD2P_IsValid", ErrInvalidUserID)
 //	}
-//	fromEcoinAccount, ok := gsm.accounts[tx.From.ID]
+//	fromEcoinAccount, ok := gsm.accounts[tx.From.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxD2P_IsValid", ErrNonexistentUserID)
 //	}
 //	if !fromEcoinAccount.Available() {
 //		return false, utils.WrapError("TxD2P_IsValid", ErrUnavailableUserID)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, fromEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxD2P_IsValid", ErrInconsistentSignature)
 //	}
 //
@@ -2116,14 +2116,14 @@ package types
 //		if err != nil {
 //			return false, utils.WrapError("TxD2P_IsValid", err)
 //		}
-//		if _, ok := gsm.uctxp[prevTx.ID]; !ok {
+//		if _, ok := gsm.uctxp[prevTx.Id]; !ok {
 //			return false, utils.WrapError("TxD2P_IsValid", ErrNotUncompletedTX)
 //		}
 //	}
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxD2P_IsValid", ErrWrongTXID)
 //	}
 //
@@ -2132,7 +2132,7 @@ package types
 //
 //// 仲裁交易，针对商业性质交易如TxR2P的“三次僵持”提出的交易体
 //type TxArbitrate struct {
-//	ID   Hash          `json:"id"`
+//	Id   Hash          `json:"id"`
 //	Time UnixTimeStamp `json:"time"`
 //	// TargetTx 仲裁目标
 //	TargetTXBytes []byte `json:"targetTXBytes"`
@@ -2164,7 +2164,7 @@ package types
 //
 //	// 构造tx
 //	tx = &TxArbitrate{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		TargetTXBytes:    targetTXBytes,
 //		TargetTXComplete:    targetTXComplete,
@@ -2178,7 +2178,7 @@ package types
 //	if err != nil {
 //		return nil, utils.WrapError("newTxArbitrate", err)
 //	}
-//	tx.ID = id
+//	tx.Id = id
 //	// 设置签名
 //	sig, err := arbitrator.Sign(id[:])
 //	if err != nil {
@@ -2191,7 +2191,7 @@ package types
 //// Hash 计算交易哈希值，作为交易ID
 //func (tx *TxArbitrate) Hash() (hash Hash, err error) {
 //	txCopy := *tx
-//	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+//	txCopy.Id, txCopy.Sig = Hash{}, Signature{}
 //	var res []byte
 //	if res, err = txCopy.Serialize(); err != nil {
 //		return Hash{}, utils.WrapError("TxArbitrate_Hash", err)
@@ -2282,7 +2282,7 @@ package types
 //func (tx *TxArbitrate) IsValid(gsm *GlobalStateMachine) (valid bool, err error) {
 //
 //	/*	tx = &TxArbitrate{
-//		ID:          Hash{},
+//		Id:          Hash{},
 //		Time:        UnixTimeStamp(time.Now().Unix()),
 //		TargetTXBytes:    targetTXBytes,
 //		TargetTXComplete:    targetTXComplete,
@@ -2301,7 +2301,7 @@ package types
 //	if !userIDValid {
 //		return false, utils.WrapError("TxArbitrate_IsValid", ErrInvalidUserID)
 //	}
-//	arbitratorEcoinAccount, ok := gsm.accounts[tx.Arbitrator.ID]
+//	arbitratorEcoinAccount, ok := gsm.accounts[tx.Arbitrator.Id]
 //	if !ok {
 //		return false, utils.WrapError("TxArbitrate_IsValid", ErrNonexistentUserID)
 //	}
@@ -2311,7 +2311,7 @@ package types
 //	if arbitratorEcoinAccount.Role().No() >= 10 {
 //		return false, utils.WrapError("TxArbitrate_IsValid", ErrNoCoinbasePermitRole)
 //	}
-//	if !utils.VerifySignature(tx.ID[:], tx.Sig, arbitratorEcoinAccount.PubKey()) {
+//	if !utils.VerifySignature(tx.Id[:], tx.Sig, arbitratorEcoinAccount.PubKey()) {
 //		return false, utils.WrapError("TxArbitrate_IsValid", ErrInconsistentSignature)
 //	}
 //
@@ -2338,7 +2338,7 @@ package types
 //
 //	// 验证交易ID是不是正确设置
 //	txHash, _ := tx.Hash()
-//	if txHash != tx.ID {
+//	if txHash != tx.Id {
 //		return false, utils.WrapError("TxArbitrate_IsValid", ErrWrongTXID)
 //	}
 //
@@ -2368,7 +2368,7 @@ package types
 //
 ////
 ////type Transaction struct {
-////	ID          []byte
+////	Id          []byte
 ////	CreateTime  int64 // 创建时间戳
 ////	SubmitTime  int64 // 提交时间戳
 ////	PassTime    int64 // 生效时间戳
@@ -2401,7 +2401,7 @@ package types
 ////	if err != nil {
 ////		return nil, fmt.Errorf("NewTransaction: %s", err)
 ////	}
-////	tx.ID = id
+////	tx.Id = id
 ////	// 签名
 ////	if err = tx.Sign(from.PrivKey); err != nil {
 ////		return nil, fmt.Errorf("NewTransaction: %s", err)
@@ -2430,7 +2430,7 @@ package types
 ////	if err != nil {
 ////		return nil, fmt.Errorf("CoinbaseTx: %s", err)
 ////	}
-////	tx.ID = id
+////	tx.Id = id
 ////	return tx, nil
 ////}
 ////
@@ -2480,9 +2480,9 @@ package types
 ////	}
 ////
 ////	// 4. 验证交易签名，确保是转账者本人操作
-////	// 复制一份tx.ID
+////	// 复制一份tx.Id
 ////	var hash []byte
-////	hash = tx.ID
+////	hash = tx.Id
 ////	// 还原r,s
 ////	r, s := big.Int{}, big.Int{}
 ////	length := len(tx.Signature)
@@ -2524,7 +2524,7 @@ package types
 ////	description: 	%s
 ////	signature: 		%s
 ////}`,
-////		tx.ID, tx.From, tx.To, tx.Amount, tx.Description, tx.Signature)
+////		tx.Id, tx.From, tx.To, tx.Amount, tx.Description, tx.Signature)
 ////}
 ////
 ////func (tx *Transaction) Serialize() (result []byte, err error) {
@@ -2538,7 +2538,7 @@ package types
 ////
 ////func (tx *Transaction) Hash() (id []byte, err error) {
 ////	txCopy := *tx
-////	txCopy.ID = []byte{}
+////	txCopy.Id = []byte{}
 ////	txCopy.Signature = []byte{}
 ////	var res []byte
 ////	if res, err = txCopy.Serialize(); err != nil {
@@ -2550,7 +2550,7 @@ package types
 ////
 ////func (tx *Transaction) Sign(privKey ecdsa.PrivateKey) (err error) {
 ////	var hash []byte
-////	hash = tx.ID
+////	hash = tx.Id
 ////	r, s, err := ecdsa.Sign(rand.Reader, &privKey, hash)
 ////	if err != nil {
 ////		return fmt.Errorf("Transaction_Sign: %s", err)

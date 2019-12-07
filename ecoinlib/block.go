@@ -55,7 +55,7 @@ type BlockForPrint struct {
 //		time.Unix(int64(b.Time), 0).Format("2006/01/02 15:04:05"),
 //		b.PrevHash,
 //		b.Hash,
-//		b.CreateBy.ID)
+//		b.CreateBy.Id)
 //}
 
 // String 转换字符串

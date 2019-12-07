@@ -7,45 +7,6 @@ import (
 	"time"
 )
 
-// TxArbitrateArgs 新建交易函数newTxArbitrate()的传参
-type TxArbitrateArgs struct {
-	//	BaseArgs
-	Arbitrator       *Account
-	ArbitratorID     UserID
-	TargetTXBytes    []byte
-	TargetTXComplete bool
-	Description      string
-}
-
-// CheckArgsValue 检查参数值是否合规
-func (args *TxArbitrateArgs) CheckArgsValue(gsm *GlobalStateMachine) (err error) {
-	// 检查from? 不需要，因为就是往上给account调用的
-
-	// 检查targetTXBytes
-	var targetTX CommercialTX // 这里不需要额外检查targetTXBytes空还是不空，反正会报错
-	//if err = targetTX.Deserialize(args.TargetTXBytes); err != nil { // TODO: 直接通过未赋值的接口调用方法会怎样？假如有多个结构体实现了该接口。答案：会发生空指针调用，panic
-	//	return ErrNotTxBytes
-	//}
-	if targetTX, err = DeserializeCommercialTX(args.TargetTXBytes); err != nil {
-		return ErrNotTxBytes
-	}
-	// 检查targetTX是否在未完成交易池中
-	targetTXID, err := targetTX.Hash()
-	if err != nil {
-		return err
-	}
-	if _, ok := gsm.UCTXP.Map[string(targetTXID)]; !ok {
-		return ErrTXNotInUCTXP
-	}
-
-	// TODO: 检查 targetTXComplete 有效性。由上层去做
-
-	// TODO: 检查 description 格式，以及代码注入？
-
-	// 参数有效
-	return nil
-}
-
 // 仲裁交易，针对商业性质交易如TxR2P的“三次僵持”提出的交易体
 type TxArbitrate struct {
 	ID   Hash          `json:"id"`
@@ -65,7 +26,7 @@ type TxArbitrate struct {
 }
 
 // newTxD2P 新建D2P转账交易(P2D交易二段)。
-func newTxArbitrate(args *TxArbitrateArgs) (tx *TxArbitrate, err error) {
+func newTxArbitrate(args *ArbitrateArgs) (tx *TxArbitrate, err error) {
 	//// 检验参数
 	//if err = args.CheckArgsValue(); err != nil {
 	//	return nil, utils.WrapError("newTxArbitrate", err)
@@ -81,10 +42,10 @@ func newTxArbitrate(args *TxArbitrateArgs) (tx *TxArbitrate, err error) {
 	tx = &TxArbitrate{
 		ID:               Hash{},
 		Time:             UnixTimeStamp(time.Now().Unix()),
-		TargetTXBytes:    args.TargetTXBytes,
+		TargetTXBytes:    args.TargetTX,
 		TargetTXComplete: args.TargetTXComplete,
 		Description:      args.Description,
-		Arbitrator:       args.ArbitratorID,
+		Arbitrator:       args.Arbitrator,
 		Sig:              Signature{},
 	}
 
@@ -95,7 +56,7 @@ func newTxArbitrate(args *TxArbitrateArgs) (tx *TxArbitrate, err error) {
 	}
 	tx.ID = id
 	// 设置签名
-	sig, err := args.Arbitrator.Sign(id)
+	sig, err := args.ArbitratorAccount.Sign(id)
 	if err != nil {
 		return nil, WrapError("newTxArbitrate", err)
 	}
@@ -173,7 +134,7 @@ func (tx *TxArbitrate) Deserialize(txAtbitrateBytes []byte) (err error) {
 func (tx *TxArbitrate) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxArbitrate{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		TargetTXBytes:    targetTXBytes,
 		TargetTXComplete:    targetTXComplete,

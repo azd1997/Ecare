@@ -1,137 +1,72 @@
 package tx
 
-// TxR2PArgs 新建交易函数newTxR2P()的传参
-type TxR2PArgs struct {
-	//	BaseArgs
-	From           *Account
-	FromID         UserID
-	To             UserID
-	Amount         Coin
-	Description    string
-	PurchaseTarget TargetData
-	P2RBytes       []byte
-	TxComplete     bool
-	Storage        DataStorage
-}
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/gob"
+	"time"
 
-// CheckArgsValue 检查参数值是否合规
-func (args *TxR2PArgs) CheckArgsValue(gsm *GlobalStateMachine) (err error) {
-	// 检查from? 不需要，因为就是往上给account调用的
-
-	// 检查FromID
-	fromID, err := args.From.UserID()
-	if err != nil {
-		return err
-	}
-	if args.FromID != fromID {
-		return ErrWrongArguments
-	}
-
-	// 检查 to 的有效性
-	if valid, _ := args.To.IsValid(); !valid {
-		return ErrInvalidUserID
-	}
-
-	// 检查 amount 有效性(余额是否足够)
-	selfId, err := args.From.UserID()
-	if err != nil {
-		return err
-	}
-	if args.Amount > gsm.Accounts.Map[selfId.ID].Balance() {
-		return ErrNotSufficientBalance
-	}
-
-	// TODO: 检查 description 格式，以及代码注入？
-
-	// 检查storage是否有效
-	if !args.Storage.IsOk() {
-		return ErrNotOkStorage
-	}
-
-	// 检查 purchaseTarget是否存在？
-	if ok, _ := args.PurchaseTarget.IsOk(args.Storage); !ok {
-		return ErrNonexistentTargetData
-	}
-
-	// 检验p2rBytes。 要么是[]byte{}(表示是初始交易)，要么是可以反序列化为p2r交易
-	if bytes.Compare(args.P2RBytes, []byte{}) != 0 {
-		p2r := TxP2R{}
-		if err = p2r.Deserialize(args.P2RBytes); err != nil {
-			return ErrWrongSourceTX
-		}
-		// 检查p2r.ID是否在未完成交易池
-		if _, ok := gsm.UCTXP.Map[string(p2r.ID)]; !ok {
-			return ErrTXNotInUCTXP
-		}
-		// 检查p2r.From是否为args.To
-		if p2r.From != args.To {
-			return ErrUnmatchedTxReceiver
-		}
-	}
-
-	// 参数有效
-	return nil
-}
+	"github.com/azd1997/Ecare/ecoin/account"
+	"github.com/azd1997/Ecare/ecoin/common"
+	"github.com/azd1997/Ecare/ecoin/storage"
+	"github.com/azd1997/Ecare/ecoin/utils"
+)
 
 // TxR2P 第三方研究机构向病人发起的数据交易的阶段一交易
 type TxR2P struct {
-	BaseTransaction `json:"baseTransaction"`
-	From            UserID     `json:"from"`
-	Sig             Signature  `json:"sig"`
-	PurchaseTarget  TargetData `json:"purchaseTarget"`
-	P2RBytes        []byte     `json:"p2rBytes, omitempty"`
-	TxComplete      bool       `json:"txComplete"` // 注意：在上层调用也就是block类中验证交易时，需要检查txComplete来进行“三次僵持“策略的实现
+	Id   common.Hash      `json:"id"`
+	Time common.TimeStamp `json:"time"`
+	From account.UserId   `json:"from"`
+	To   account.UserId   `json:"to"` // 为了避免复杂，后续只能是原来的To否则无效
+	Sig  common.Signature `json:"sig"`
+
+	PurchaseTarget storage.TargetData `json:"purchaseTarget"` // 非第一次发时一般置空（表示目标不变），否则也可以进行更新
+	P2R            *TxP2R             `json:"p2r"`
+	ResponseInfo   []byte             `json:"response"` // 比如说请求数据的密码
+	Description    string             `json:"description"`
+	TxComplete     bool               `json:"txComplete"` // 注意：在上层调用也就是block类中验证交易时，需要检查txComplete来进行“三次僵持“策略的实现
 }
 
 // newTxR2P 新建R2P转账交易。
-func newTxR2P(args *TxR2PArgs) (tx *TxR2P, err error) {
-
-	//// 检验参数
-	//if err = args.CheckArgsValue(); err != nil {
-	//	return nil, utils.WrapError("newTxR2P", err)
-	//}
-	//
-	//// 获取转账者UserID
-	//fromID, err := args.From.UserID(args.Gsm.opts.ChecksumLength(), args.Gsm.opts.Version())
-	//if err != nil {
-	//	return nil, utils.WrapError("newTxR2P", err)
-	//}
+func newTxR2P(args *R2PArgs) (tx *TxR2P, err error) {
 
 	// 构造tx
 	tx = &TxR2P{
-		BaseTransaction: BaseTransaction{
-			ID:          Hash{},
-			Time:        UnixTimeStamp(time.Now().Unix()),
-			To:          args.To,
-			Amount:      args.Amount,
-			Description: args.Description,
-		},
-		From:           args.FromID,
-		Sig:            Signature{},
+		Id:             nil,
+		Time:           common.TimeStamp(time.Now().Unix()),
+		From:           args.From,
+		To:             args.To,
+		P2R:            args.P2R,
+		ResponseInfo:   args.Response,
+		Description:    args.Description,
+		Sig:            nil,
 		PurchaseTarget: args.PurchaseTarget,
-		P2RBytes:       args.P2RBytes,
 		TxComplete:     args.TxComplete,
 	}
 
 	// 设置Id
 	id, err := tx.Hash()
 	if err != nil {
-		return nil, WrapError("newTxR2P", err)
+		return nil, utils.WrapError("newTxR2P", err)
 	}
-	tx.ID = id
+	tx.Id = id
 	// 设置签名
-	sig, err := args.From.Sign(id)
+	sig, err := args.FromAccount.Sign(id)
 	if err != nil {
-		return nil, WrapError("newTxR2P", err)
+		return nil, utils.WrapError("newTxR2P", err)
 	}
 	tx.Sig = sig
 	return tx, nil
 }
 
+/***********************************************实现CommercialTX接口***************************************************/
+
 // commercial 商业性质
 func (tx *TxR2P) commercial() {
 	// 啥事也不干
 }
+
+/*****************************************************实现TX接口*********************************************************/
 
 // TypeNo 获取交易类型编号
 func (tx *TxR2P) TypeNo() uint {
@@ -139,17 +74,17 @@ func (tx *TxR2P) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxR2P) Id() Hash {
-	return tx.ID
+func (tx *TxR2P) ID() common.Hash {
+	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxR2P) Hash() (hash Hash, err error) {
+func (tx *TxR2P) Hash() (hash common.Hash, err error) {
 	txCopy := *tx
-	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+	txCopy.Id, txCopy.Sig = common.Hash{}, common.Signature{}
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return Hash{}, WrapError("TxGeneral_Hash", err)
+		return common.Hash{}, utils.WrapError("TxGeneral_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil
@@ -157,36 +92,12 @@ func (tx *TxR2P) Hash() (hash Hash, err error) {
 
 // Serialize 交易序列化为字节切片
 func (tx *TxR2P) Serialize() (result []byte, err error) {
-	return GobEncode(tx)
+	return utils.GobEncode(tx)
 }
 
 // String 转换为字符串，用于打印输出
 func (tx *TxR2P) String() string {
-
-	type TxR2PForPrint struct {
-		ID          []byte          `json:"id"`
-		Time        string `json:"time"`
-		From        UserID        `json:"from"`
-		To          UserID        `json:"to"`
-		Description string        `json:"description"`
-		Sig         Signature     `json:"sig"`
-		PurchaseTarget TargetData `json:"purchaseTarget"`
-		P2RBytes        []byte     `json:"p2rBytes, omitempty"`
-		TxComplete      bool       `json:"txComplete"`
-	}
-	txPrint := &TxR2PForPrint{
-		ID:          tx.ID[:],
-		Time:        time.Unix(int64(tx.Time), 0).Format("2006/01/02 15:04:05"),
-		From:tx.From,
-		To:tx.To,
-		Description: tx.Description,
-		Sig:tx.Sig,
-		PurchaseTarget:tx.PurchaseTarget,
-		P2RBytes:tx.P2RBytes,
-		TxComplete:tx.TxComplete,
-	}
-
-	return JsonMarshalIndentToString(txPrint)
+	return utils.JsonMarshalIndentToString(tx)
 }
 
 // Deserialize 反序列化，必须提前 tx := &TxR2P{} 再调用
@@ -198,90 +109,56 @@ func (tx *TxR2P) Deserialize(r2pBytes []byte) (err error) {
 	buf.Write(r2pBytes)
 	err = gob.NewDecoder(&buf).Decode(tx)
 	if err != nil {
-		return WrapError("TxR2P_Deserialize", err)
+		return utils.WrapError("TxR2P_Deserialize", err)
 	}
 	return nil
 }
 
-// IsValid 验证交易是否合乎规则
-func (tx *TxR2P) IsValid(gsm *GlobalStateMachine) (err error) {
+//
+//func (tx *TxR2P) Response() []byte {
+//	return tx.ResponseInfo
+//}
 
-	/*	tx = &TxR2P{
-		BaseTransaction: BaseTransaction{
-			ID:          Hash{},
-			Time:        UnixTimeStamp(time.Now().Unix()),
-			To:          to,
-			Amount:      amount,
-			Description: description,
-		},
-		From:           fromID,
-		Sig:            Signature{},
-		PurchaseTarget: purchaseTarget,
-		P2RBytes:       p2rBytes,
-		TxComplete:     txComplete,
-	}*/
+// IsValid 验证交易是否合乎规则
+func (tx *TxR2P) IsValid() (err error) {
 
 	// 检查交易时间有效性
-	if tx.Time >= UnixTimeStamp(time.Now().Unix()) {
-		return WrapError("TxR2P_IsValid", ErrWrongTimeTX)
+	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
+		return utils.WrapError("TxR2P_IsValid", ErrWrongTimeTX)
 	}
 
-	// 检查to id有效性和账号是否可用
-	userIDValid, _ := tx.To.IsValid() // 另起一个变量userIDValid，避免阅读时被误导而已。
-	if !userIDValid {
-		return WrapError("TxR2P_IsValid", ErrInvalidUserID)
-	}
-	toEcoinAccount, ok := gsm.Accounts.Map[tx.To.ID]
-	if !ok {
-		return WrapError("TxR2P_IsValid", ErrNonexistentUserID)
-	}
-	if !toEcoinAccount.Available() {
-		return WrapError("TxR2P_IsValid", ErrUnavailableUserID)
+	// 检查 From
+	if err = tx.From.IsValid(account.Single, account.ResearchInstitution); err != nil {
+		return utils.WrapError("TxR2P_IsValid", err)
 	}
 
-	// 检查fromID的有效性、可用性和from余额是否足够,from签名是否匹配
-	userIDValid, _ = tx.From.IsValid()
-	if !userIDValid {
-		return WrapError("TxR2P_IsValid", ErrInvalidUserID)
-	}
-	fromEcoinAccount, ok := gsm.Accounts.Map[tx.From.ID]
-	if !ok {
-		return WrapError("TxR2P_IsValid", ErrNonexistentUserID)
-	}
-	if !fromEcoinAccount.Available() {
-		return WrapError("TxR2P_IsValid", ErrUnavailableUserID)
-	}
-	if tx.Amount > fromEcoinAccount.Balance() {
-		return WrapError("TxR2P_IsValid", ErrNotSufficientBalance)
-	}
-	if VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
-		return WrapError("TxR2P_IsValid", ErrInconsistentSignature)
+	// 检查 To
+	if err = tx.To.IsValid(account.Single, account.Patient); err != nil {
+		return utils.WrapError("TxR2P_IsValid", err)
 	}
 
-	// TODO： PurchaseTarget可用性检查。这部分交给交易双方自己做，除非达到仲裁条件，由验证节点进行仲裁才会再上层的handleTX方法中去处理
-
-	// 检查前部交易是不是一个P2R交易，为空则正确；不为空必须是符合P2R交易体且交易ID在未完成交易池中，否则认为是不合法交易
-	if tx.P2RBytes == nil || bytes.Compare(tx.P2RBytes, []byte{}) == 0 {
-		return WrapError("TxR2P_IsValid", ErrEmptySoureTX)
-	}
-	if bytes.Compare(tx.P2RBytes, []byte{}) != 0 {
-		prevTx := &TxP2R{}
-		err := prevTx.Deserialize(tx.P2RBytes)
-		if err != nil {
-			return WrapError("TxR2P_IsValid", err)
+	// 检查to与P2R的from是否匹配
+	if tx.P2R != nil {
+		if tx.To != tx.P2R.From {
+			return utils.WrapError("TxR2P_IsValid", ErrUnmatchedTxReceiver)
 		}
-		if _, ok := gsm.UCTXP.Map[string(prevTx.ID)]; !ok {
-			return WrapError("TxR2P_IsValid", ErrNotUncompletedTX)
+		if tx.From != tx.P2R.R2P.From { // 只要tx.P2R非空，那么一定满足该条件，不会panic。
+			return utils.WrapError("TxR2P_IsValid", ErrUnmatchedTxSender)
 		}
+	}
+
+	// 检查 purchaseTarget是否有效？
+	if err = tx.PurchaseTarget.IsOk(); err != nil {
+		return utils.WrapError("TxR2P_IsValid", err)
 	}
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
-	if string(txHash) != string(tx.ID) {
-		return WrapError("TxR2P_IsValid", ErrWrongTXID)
+	if string(txHash) != string(tx.Id) {
+		return utils.WrapError("TxR2P_IsValid", ErrWrongTXID)
 	}
 
 	return nil
 }
 
-
+/*******************************************************实现接口*********************************************************/

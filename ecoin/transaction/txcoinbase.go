@@ -12,7 +12,6 @@ import (
 )
 
 
-
 // TxCoinbase 出块奖励交易，只允许A类账户接收，A类账户目前包括医院H和第三方研究机构R
 // 由于coinbase交易没有转账者，且必须由出块者构建，所以不设置签名项划定归属。
 type TxCoinbase struct {
@@ -26,11 +25,6 @@ type TxCoinbase struct {
 
 // newTxCoinbase 新建出块奖励交易。
 func newTxCoinbase(args *CoinbaseArgs) (tx *TxCoinbase, err error) {
-	// TODO： 注意： 参数的检查交给gsm去做了
-	//// 检验参数
-	//if err = args.CheckArgsValue(); err != nil {
-	//	return nil, utils.WrapError("newTxCoinbase", err)
-	//}
 
 	// 构造tx
 	tx = &TxCoinbase{}
@@ -43,6 +37,9 @@ func newTxCoinbase(args *CoinbaseArgs) (tx *TxCoinbase, err error) {
 	tx.Id = id
 	return tx, nil
 }
+
+
+/*******************************************************实现接口*********************************************************/
 
 // TypeNo 获取交易类型编号
 func (tx *TxCoinbase) TypeNo() uint {
@@ -93,15 +90,6 @@ func (tx *TxCoinbase) Deserialize(data []byte) (err error) {
 // IsValid 验证交易是否合乎规则
 func (tx *TxCoinbase) IsValid() (err error) {
 
-	/*	tx = &TxCoinbase{
-		BaseTransaction:BaseTransaction{
-			ID:Hash{},
-			Time:UnixTimeStamp(0),
-			To:UserID{},
-			Amount:Coin(1),
-			Description:string(""),
-		}}*/
-
 	// 要记住检验交易有两种情况下被调用：一是加入未打包交易池之前要检查交易（情况A）；二是收到区块后要检查区块内交易（情况B）。
 
 	// 检查时间戳是否比现在早（至于是不是早太多就不检查了，早太多的话余额那里是不会给过的）（情况A）； 时间戳是否比区块时间早（情况B）
@@ -110,14 +98,10 @@ func (tx *TxCoinbase) IsValid() (err error) {
 		return utils.WrapError("TxCoinbase_IsValid", ErrWrongTimeTX)
 	}
 
-	// 检查coinbase接收者ID的有效性和角色的权限与可用性
+	// 检查 To
 	if err = tx.To.IsValid(account.A, 0); err != nil {
 		return utils.WrapError("TxCoinbase_IsValid", err)
 	}
-	// TODO: 余额、账户可用状态等等涉及EAccounts和Blockchain的由上层调用
-
-	// 检查coinbase金额
-	// TODO
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
@@ -132,3 +116,5 @@ func (tx *TxCoinbase) IsValid() (err error) {
 	return nil
 }
 
+
+/*******************************************************实现接口*********************************************************/

@@ -172,7 +172,7 @@ func (tx *TxGeneral) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxGeneral{
 			BaseTransaction: BaseTransaction{
-				ID:          Hash{},
+				Id:          Hash{},
 				Time:        UnixTimeStamp(time.Now().Unix()),
 				To:          to,
 				Amount:      amount,

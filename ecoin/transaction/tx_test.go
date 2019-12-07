@@ -61,7 +61,7 @@ func TestNewTxArbitrate(t *testing.T) {
 	fmt.Printf("arbitrator: %s\n", userID)
 
 	// 构造参数
-	args := &TxArbitrateArgs{
+	args := &ArbitrateArgs{
 		Arbitrator:        acc,
 		ArbitratorID:*userID,
 		TargetTXBytes:[]byte("这是一个待仲裁的交易"),

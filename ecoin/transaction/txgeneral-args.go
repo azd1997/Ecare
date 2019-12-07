@@ -41,6 +41,7 @@ func (args *GeneralArgs) Check() (err error) {
 	// 检查 amount 有效性(余额是否足够)
 	// 交给tx包调用者去做
 
+
 	// TODO: 检查 description 格式
 
 	return nil

@@ -183,7 +183,7 @@ func (tx *TxP2D) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxP2D{
 		BaseTransaction: BaseTransaction{
-			ID:          Hash{},
+			Id:          Hash{},
 			Time:        UnixTimeStamp(time.Now().Unix()),
 			To:          to,
 			Amount:      amount,

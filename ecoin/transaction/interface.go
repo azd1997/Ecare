@@ -2,6 +2,8 @@ package tx
 
 import (
 	"github.com/azd1997/Ecare/ecoin/common"
+	"github.com/azd1997/Ecare/ecoin/storage"
+	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
 
@@ -17,8 +19,8 @@ type TX interface {
 	Hash() (id common.Hash, err error)
 	IsValid() (err error)
 	TypeNo() uint
-	Id() common.Hash
-	Response() *Response
+	ID() common.Hash
+	//Response() *Response
 }
 
 // Args 新建交易时传入的参数结构体的接口。这样子做可以省掉上一版本中ParseArgs的步骤
@@ -29,15 +31,15 @@ type Args interface {
 }
 
 // NewTransactionWithArgsCheck 新建一个交易，传入交易类型与其他参数，构建具体的交易。
-func newTransactionWithArgsCheck(typ uint, gsm *GlobalStateMachine, args ArgsOfNewTX) (TX, error) {
+func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 	switch typ {
 	case TX_COINBASE:
 		// 1. 检查参数
-		args, ok := args.(*TxCoinbaseArgs)
+		args, ok := args.(*CoinbaseArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -48,84 +50,84 @@ func newTransactionWithArgsCheck(typ uint, gsm *GlobalStateMachine, args ArgsOfN
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
 		return newTxGeneral(args)
 	case TX_R2P:
 		// 1. 检查参数
-		args, ok := args.(*TxR2PArgs)
+		args, ok := args.(*R2PArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
 		return newTxR2P(args)
 	case TX_P2R:
 		// 1. 检查参数
-		args, ok := args.(*TxP2RArgs)
+		args, ok := args.(*P2RArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
 		return newTxP2R(args)
 	case TX_P2H:
 		// 1. 检查参数
-		args, ok := args.(*TxP2HArgs)
+		args, ok := args.(*P2HArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
 		return newTxP2H(args)
 	case TX_H2P:
 		// 1. 检查参数
-		args, ok := args.(*TxH2PArgs)
+		args, ok := args.(*H2PArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
 		return newTxH2P(args)
 	case TX_P2D:
 		// 1. 检查参数
-		args, ok := args.(*TxP2DArgs)
+		args, ok := args.(*P2DArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
 		return newTxP2D(args)
 	case TX_D2P:
 		// 1. 检查参数
-		args, ok := args.(*TxD2PArgs)
+		args, ok := args.(*D2PArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
 		return newTxD2P(args)
 	case TX_ARBITRATE:
 		// 1. 检查参数
-		args, ok := args.(*TxArbitrateArgs)
+		args, ok := args.(*ArbitrateArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
-		if err := args.CheckArgsValue(gsm); err != nil {
+		if err := args.Check(); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -136,11 +138,11 @@ func newTransactionWithArgsCheck(typ uint, gsm *GlobalStateMachine, args ArgsOfN
 }
 
 // NewTransaction 新建一个交易，传入交易类型与其他参数，构建具体的交易。 一定要严格检查输入参数顺序和类型！！！
-func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
+func newTransaction(typ uint, args Args) (TX, error) {
 	switch typ {
 	case TX_COINBASE:
 		// 1. 检查参数
-		args, ok := args.(*TxCoinbaseArgs)
+		args, ok := args.(*CoinbaseArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -156,7 +158,7 @@ func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
 		return newTxGeneral(args)
 	case TX_R2P:
 		// 1. 检查参数
-		args, ok := args.(*TxR2PArgs)
+		args, ok := args.(*R2PArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -164,7 +166,7 @@ func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
 		return newTxR2P(args)
 	case TX_P2R:
 		// 1. 检查参数
-		args, ok := args.(*TxP2RArgs)
+		args, ok := args.(*P2RArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -172,7 +174,7 @@ func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
 		return newTxP2R(args)
 	case TX_P2H:
 		// 1. 检查参数
-		args, ok := args.(*TxP2HArgs)
+		args, ok := args.(*P2HArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -180,7 +182,7 @@ func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
 		return newTxP2H(args)
 	case TX_H2P:
 		// 1. 检查参数
-		args, ok := args.(*TxH2PArgs)
+		args, ok := args.(*H2PArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -188,7 +190,7 @@ func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
 		return newTxH2P(args)
 	case TX_P2D:
 		// 1. 检查参数
-		args, ok := args.(*TxP2DArgs)
+		args, ok := args.(*P2DArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -196,7 +198,7 @@ func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
 		return newTxP2D(args)
 	case TX_D2P:
 		// 1. 检查参数
-		args, ok := args.(*TxD2PArgs)
+		args, ok := args.(*D2PArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -204,7 +206,7 @@ func newTransaction(typ uint, args ArgsOfNewTX) (TX, error) {
 		return newTxD2P(args)
 	case TX_ARBITRATE:
 		// 1. 检查参数
-		args, ok := args.(*TxArbitrateArgs)
+		args, ok := args.(*ArbitrateArgs)
 		if !ok {
 			return nil, ErrWrongArgsForNewTX
 		}
@@ -222,63 +224,63 @@ func DeserializeTX(typ uint, txBytes []byte) (tx TX, err error) {
 		tx = &TxCoinbase{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_GENERAL:
 		tx = &TxGeneral{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_R2P:
 		tx = &TxR2P{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_P2R:
 		tx = &TxP2R{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_P2H:
 		tx = &TxP2H{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_H2P:
 		tx = &TxH2P{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_P2D:
 		tx = &TxP2D{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_D2P:
 		tx = &TxD2P{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_ARBITRATE:
 		tx = &TxArbitrate{}
 		err = tx.Deserialize(txBytes)
 		if err != nil {
-			return nil, WrapError("DeserializeTX", err)
+			return nil, utils.WrapError("DeserializeTX", err)
 		}
 		return tx, nil
 	case TX_AUTO:
@@ -300,19 +302,10 @@ func DeserializeTX(typ uint, txBytes []byte) (tx TX, err error) {
 				return tx, nil
 			}
 		}
-		return nil, WrapError("DeserializeTX", ErrNotTxBytes)
+		return nil, utils.WrapError("DeserializeTX", ErrNotTxBytes)
 	default:
-		return nil, WrapError("DeserializeTX", ErrUnknownTransactionType)
+		return nil, utils.WrapError("DeserializeTX", ErrUnknownTransactionType)
 	}
-}
-
-// BaseTransaction 基交易，包含所有具体交易类型包含的共同属性。
-type BaseTransaction struct {
-	ID          Hash          `json:"id"`
-	Time        UnixTimeStamp `json:"time"`
-	To          UserID        `json:"to"`
-	Amount      Coin          `json:"amount"`
-	Description string        `json:"description"`
 }
 
 
@@ -342,9 +335,16 @@ func DeserializeCommercialTX(txBytes []byte) (tx CommercialTX, err error) {
 type Response interface {
 	SourceTx() TX
 	String() string
-	TargetData() TargetData
+	TargetData() storage.TargetData
 	Get(string) []byte		// Get("diagnose") ; Get("datakey") ;
 
 	//Serialize() []byte
 	//Check()
 }
+
+
+// TODO: 再上一个版本耦合状态下，这里的交易验证和参数验证可以将GSM这类全局结构体传入
+// 但现在不行，如果引入的话会导致循环引用。除非使用中间接口来解耦
+// 比如说这里的交易类都实现了交易接口，将交易接口独立放置在一个包，然后本包引用接口包和gsm包，gsm包引用接口包
+// 这里不选择接口解耦方式，而是将所有需要到全局结构体进行查询的校验内容工作交给上方去做
+// 就像account包一样，所有包只做自己能做的事，把需要协作的工作交给上一层处理

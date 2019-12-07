@@ -118,7 +118,7 @@ func (tx *Transaction) Verify(checksumLength int) (valid bool, err error) {
 	}
 
 	// 4. 验证交易签名，确保是转账者本人操作
-	// 复制一份tx.ID
+	// 复制一份tx.Id
 	var hash []byte
 	hash = tx.ID
 	// 还原r,s

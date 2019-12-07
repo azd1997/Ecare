@@ -75,9 +75,9 @@ func TestUCTXP(t *testing.T) {
 		string(tx2.ID): tx2,
 		string(tx3.ID): tx3}}
 	//uctxp := &UnCompleteTXPool{Map: map[string][]byte{
-	//	string(tx1.ID): tx1Bytes,
-	//	string(tx2.ID): tx2Bytes,
-	//	string(tx3.ID): tx3Bytes}}
+	//	string(tx1.Id): tx1Bytes,
+	//	string(tx2.Id): tx2Bytes,
+	//	string(tx3.Id): tx3Bytes}}
 
 	// json文件
 	err = uctxp.SaveFileWithJsonMarshal(9999)
@@ -162,9 +162,9 @@ func TestUCTXPWithGobEncode(t *testing.T) {
 		string(tx2.ID): tx2,
 		string(tx3.ID): tx3}}
 	//uctxp := &UnCompleteTXPool{Map: map[string][]byte{
-	//	string(tx1.ID): tx1Bytes,
-	//	string(tx2.ID): tx2Bytes,
-	//	string(tx3.ID): tx3Bytes}}
+	//	string(tx1.Id): tx1Bytes,
+	//	string(tx2.Id): tx2Bytes,
+	//	string(tx3.Id): tx3Bytes}}
 
 	// json文件
 	err = uctxp.SaveFileWithGobEncode(9999)

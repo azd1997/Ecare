@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"time"
+
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/common"
 	"github.com/azd1997/Ecare/ecoin/utils"
-	"time"
 )
 
 
@@ -111,7 +112,7 @@ func (tx *TxD2P) Deserialize(d2pBytes []byte) (err error) {
 func (tx *TxD2P) IsValid() (err error) {
 
 	/*	tx = &TxD2P{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		From:fromID,
 		P2DBytes:    p2dBytes,

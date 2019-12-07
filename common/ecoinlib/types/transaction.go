@@ -517,7 +517,7 @@ func (tx *TxCoinbase) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxCoinbase{
 		BaseTransaction:BaseTransaction{
-			ID:Hash{},
+			Id:Hash{},
 			Time:UnixTimeStamp(0),
 			To:UserID{},
 			Amount:Coin(1),
@@ -710,7 +710,7 @@ func (tx *TxGeneral) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxGeneral{
 			BaseTransaction: BaseTransaction{
-				ID:          Hash{},
+				Id:          Hash{},
 				Time:        UnixTimeStamp(time.Now().Unix()),
 				To:          to,
 				Amount:      amount,
@@ -954,7 +954,7 @@ func (tx *TxR2P) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxR2P{
 		BaseTransaction: BaseTransaction{
-			ID:          Hash{},
+			Id:          Hash{},
 			Time:        UnixTimeStamp(time.Now().Unix()),
 			To:          to,
 			Amount:      amount,
@@ -1182,7 +1182,7 @@ func (tx *TxP2R) Deserialize(p2rBytes []byte) (err error) {
 func (tx *TxP2R) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxP2R{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		From:fromID,
 		R2PBytes:    r2pBytes,
@@ -1409,7 +1409,7 @@ func (tx *TxP2H) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxP2H{
 		BaseTransaction: BaseTransaction{
-			ID:          Hash{},
+			Id:          Hash{},
 			Time:        UnixTimeStamp(time.Now().Unix()),
 			To:          to,
 			Amount:      amount,
@@ -1626,7 +1626,7 @@ func (tx *TxH2P) Deserialize(h2pBytes []byte) (err error) {
 func (tx *TxH2P) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxH2P{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		From:fromID,
 		P2HBytes:    p2hBytes,
@@ -1837,7 +1837,7 @@ func (tx *TxP2D) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxP2D{
 		BaseTransaction: BaseTransaction{
-			ID:          Hash{},
+			Id:          Hash{},
 			Time:        UnixTimeStamp(time.Now().Unix()),
 			To:          to,
 			Amount:      amount,
@@ -2039,7 +2039,7 @@ func (tx *TxD2P) Deserialize(d2pBytes []byte) (err error) {
 func (tx *TxD2P) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxD2P{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		From:fromID,
 		P2DBytes:    p2dBytes,
@@ -2244,7 +2244,7 @@ func (tx *TxArbitrate) Deserialize(txAtbitrateBytes []byte) (err error) {
 func (tx *TxArbitrate) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxArbitrate{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		TargetTXBytes:    targetTXBytes,
 		TargetTXComplete:    targetTXComplete,

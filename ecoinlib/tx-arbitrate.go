@@ -177,7 +177,7 @@ func (tx *TxArbitrate) Deserialize(txAtbitrateBytes []byte) (err error) {
 func (tx *TxArbitrate) IsValid(gsm *GlobalStateMachine) (err error) {
 
 	/*	tx = &TxArbitrate{
-		ID:          Hash{},
+		Id:          Hash{},
 		Time:        UnixTimeStamp(time.Now().Unix()),
 		TargetTXBytes:    targetTXBytes,
 		TargetTXComplete:    targetTXComplete,
