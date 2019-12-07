@@ -21,7 +21,7 @@ func (args *GeneralArgs) Check() (err error) {
 	// 检查from? 不需要，因为就是往上给account调用的
 
 	// 检查FromId
-	err = args.From.RoleOk(account.All, 0)
+	err = args.From.IsValid(account.All, account.AllRole)
 	if err != nil {
 		return utils.WrapError("Args_Check", err)
 	}
@@ -34,17 +34,14 @@ func (args *GeneralArgs) Check() (err error) {
 	}
 
 	// 检查 to 的有效性
-	if err = args.To.RoleOk(account.All, 0); err != nil {
-		return utils.WrapError("Args_Check", err)
-	}
-	if err = args.To.IsValid(); err != nil {
+	if err = args.To.IsValid(account.All, account.AllRole); err != nil {
 		return utils.WrapError("Args_Check", err)
 	}
 
 	// 检查 amount 有效性(余额是否足够)
 	// 交给tx包调用者去做
 
-	// TODO: 检查 description 格式，以及代码注入？
+	// TODO: 检查 description 格式
 
 	return nil
 }

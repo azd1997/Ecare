@@ -13,3 +13,18 @@ const (
 	All			// 判断角色是否是All节点（0~99，AB的并集）
 	Single		// 查询角色是否是指定的某一种
 )
+
+const (
+	AllRole = iota				// 默认值
+	Hospital 					// 1
+	ResearchInstitution 		// 2
+	_
+	_
+	_
+	_
+	_
+	_
+	_
+	Patient						// 10
+	Doctor						// 11
+)

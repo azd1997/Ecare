@@ -11,8 +11,6 @@ import (
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
-
-
 // TxGeneral 通用交易， 一方转给另一方，无需确认
 type TxGeneral struct {
 	TxBase
@@ -26,6 +24,7 @@ type TxGeneral struct {
 }
 
 // newTxGeneral 新建普通转账交易。
+// 这里是内部函数，使用GeneralArgs传参；该函数的上一层进行包装时使用Args进行传参，而后使用断言进入本函数
 func newTxGeneral(args *GeneralArgs) (tx *TxGeneral, err error) {
 	//// 检验参数
 	//if err = args.CheckArgsValue(); err != nil {
@@ -64,6 +63,8 @@ func newTxGeneral(args *GeneralArgs) (tx *TxGeneral, err error) {
 	return tx, nil
 }
 
+/*******************************************************实现接口*********************************************************/
+
 // TypeNo 获取交易类型编号
 func (tx *TxGeneral) TypeNo() uint {
 	return TX_GENERAL
@@ -75,7 +76,7 @@ func (tx *TxGeneral) ID() common.Hash {
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxGeneral) Hash() (hash Hash, err error) {
+func (tx *TxGeneral) Hash() (hash common.Hash, err error) {
 	txCopy := *tx
 	txCopy.Id, txCopy.Sig = common.Hash{}, common.Signature{} // 置空值
 	var res []byte
@@ -132,35 +133,32 @@ func (tx *TxGeneral) IsValid() (err error) {
 	}
 
 	// 检查From
-	err = tx.From.RoleOk(account.All, 0)
+	err = tx.From.IsValid(account.All, 0)
 	if err != nil {
 		return utils.WrapError("TxGeneral_IsValid", err)
 	}
 
 
 	// 检查 To 的有效性
-	if err = tx.To.RoleOk(account.All, 0); err != nil {
-		return utils.WrapError("TxGeneral_IsValid", err)
-	}
-	if err = tx.To.IsValid(); err != nil {
+	if err = tx.To.IsValid(account.All, 0); err != nil {
 		return utils.WrapError("TxGeneral_IsValid", err)
 	}
 
 	// 检查 amount 有效性(余额是否足够)
 	// 交给tx包调用者去做
 
-	// TODO: 检查 description 格式，以及代码注入？
+	// TODO: 检查 description 格式
 
 
-	if !VerifySignature(tx.ID[:], tx.Sig, fromEcoinAccount.PubKey()) {
-		return WrapError("TxGeneral_IsValid", ErrInconsistentSignature)
-	}
+	// TODO: 签名验证、余额验证交由上层处理
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
-	if string(txHash) != string(tx.ID) {
-		return WrapError("TxGeneral_IsValid", ErrWrongTXID)
+	if string(txHash) != string(tx.Id) {
+		return utils.WrapError("TxGeneral_IsValid", ErrWrongTXID)
 	}
 
 	return nil
 }
+
+/*******************************************************实现接口*********************************************************/

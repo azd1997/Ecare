@@ -10,7 +10,7 @@ package common
 
 // Role 账户角色，作为权限控制
 type Role struct {
-	NoField             uint8  // 编号，从0开始。role0为创始者，编号不可改，别名可以自定义
+	NoField             uint8  // 编号，从1开始。role1为创始者，编号不可改，别名可以自定义
 	AliasField          string // 名称
 	InitialField        Coin   // 初始币量
 	CoinbaseRewardField Coin   // 挖矿奖励交易。B类角色只能是0因为不能挖矿。A类可根据协议设置数值

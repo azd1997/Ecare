@@ -18,6 +18,7 @@ type TX interface {
 	IsValid() (err error)
 	TypeNo() uint
 	Id() common.Hash
+	Response() *Response
 }
 
 // Args 新建交易时传入的参数结构体的接口。这样子做可以省掉上一版本中ParseArgs的步骤
@@ -335,4 +336,15 @@ func DeserializeCommercialTX(txBytes []byte) (tx CommercialTX, err error) {
 		}
 	}
 	return nil, ErrNotCommercialTxBytes
+}
+
+// Response 回应接口。 一切沟通皆回应。一层包一层，每一个Response都包含国网所有交易沟通细节
+type Response interface {
+	SourceTx() TX
+	String() string
+	TargetData() TargetData
+	Get(string) []byte		// Get("diagnose") ; Get("datakey") ;
+
+	//Serialize() []byte
+	//Check()
 }

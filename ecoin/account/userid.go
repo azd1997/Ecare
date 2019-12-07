@@ -27,11 +27,23 @@ func (userId *UserId) String() string {
 	return utils.JsonMarshalIndentToString(userId)
 }
 
-// IsValid 判断UserId.Id是否有效
-func (userId *UserId) IsValid() error {
+
+// IsValid 判断UserId是否有效
+func (userId *UserId) IsValid(pattern uint8, role uint) error {
+	if err := userId.IsRoleOk(pattern, role); err != nil {
+		return utils.WrapError("UserId_IsValid", err)
+	}
+	if err := userId.IsIdOk(); err != nil {
+		return utils.WrapError("UserId_IsValid", err)
+	}
+	return nil
+}
+
+// IsIdOk 判断UserId.Id是否有效
+func (userId *UserId) IsIdOk() error {
 	fullPubKeyHash, err := base58.Decode(userId.Id)
 	if err != nil {
-		return utils.WrapError("UserID_IsValid", err)
+		return err
 	}
 	length := uint(len(fullPubKeyHash))
 	actualChecksum := fullPubKeyHash[length-CHECKSUM_LENGTH:]
@@ -39,24 +51,25 @@ func (userId *UserId) IsValid() error {
 	pubKeyHash := fullPubKeyHash[1 : length-CHECKSUM_LENGTH]
 	targetChecksum := checksum(append([]byte{version}, pubKeyHash...))
 	if bytes.Compare(actualChecksum, targetChecksum) != 0 {		// 不相等
-		return utils.WrapError("UserID_IsValid", ErrInvalidUserId)
+		return ErrInvalidUserId
 	}
 
 	return nil
 }
 
-// RoleOk 判断角色是否符合条件。默认情况下0~9为A类角色，10~99为B类角色
+// isRoleOk 判断角色是否符合条件。默认情况下1~9为A类角色，10~99为B类角色
 // 当pattern设定为大类型查询之后，role不被使用，随便设
-func (userId *UserId) RoleOk(pattern uint8, role uint) error {
+// Role0用来表示默认状态
+func (userId *UserId) IsRoleOk(pattern uint8, role uint) error {
 	switch pattern {
 	case A:
-		if userId.RoleNo >= 0 && userId.RoleNo <= 9 {return nil}
+		if userId.RoleNo >= 1 && userId.RoleNo <= 9 {return nil}
 		return ErrNotRoleA
 	case B:
 		if userId.RoleNo >= 10 && userId.RoleNo < 100 {return nil}
 		return ErrNotRoleB
 	case All:
-		if userId.RoleNo >= 0 && userId.RoleNo < 100 {return nil}
+		if userId.RoleNo >= 1 && userId.RoleNo < 100 {return nil}
 		return ErrUnKnownRole
 	case Single:
 		if userId.RoleNo == role {return nil}
