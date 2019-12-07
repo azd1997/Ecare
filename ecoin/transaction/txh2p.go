@@ -11,17 +11,15 @@ import (
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
-
-
 // TxH2P 病人向医院发起的心电数据诊断，分人工和机器自动分析两种。阶段二
 type TxH2P struct {
-	Id          common.Hash          `json:"id"`
+	Id          common.Hash      `json:"id"`
 	Time        common.TimeStamp `json:"time"`
-	From        account.UserId        `json:"from"`
-	P2H    *TxP2H        `json:"p2h"`
-	Response    []byte        `json:"response"` // 比如说请求数据的密码
-	Description string        `json:"description"`
-	Sig         common.Signature     `json:"sig"`
+	From        account.UserId   `json:"from"`
+	P2H         *TxP2H           `json:"p2h"`
+	Response    []byte           `json:"response"` // 比如说请求数据的密码
+	Description string           `json:"description"`
+	Sig         common.Signature `json:"sig"`
 }
 
 // newTxH2P 新建H2P转账交易(P2H交易二段)。
@@ -52,6 +50,8 @@ func newTxH2P(args *H2PArgs) (tx *TxH2P, err error) {
 	tx.Sig = sig
 	return tx, nil
 }
+
+/*******************************************************实现接口*********************************************************/
 
 // TypeNo 获取交易类型编号
 func (tx *TxH2P) TypeNo() uint {
@@ -102,25 +102,22 @@ func (tx *TxH2P) Deserialize(h2pBytes []byte) (err error) {
 // IsValid 验证交易是否合乎规则
 func (tx *TxH2P) IsValid() (err error) {
 
-	/*	tx = &TxH2P{
-		Id:          Hash{},
-		Time:        UnixTimeStamp(time.Now().Unix()),
-		From:fromID,
-		P2HBytes:    p2hBytes,
-		Response:    response,
-		Description: description,
-		Sig:         Signature{},
-	}*/
-
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
 		return utils.WrapError("TxH2P_IsValid", ErrWrongTimeTX)
 	}
 
-	// 检查fromID的有效性、可用性和from签名是否匹配
+	// 检查from的有效性
 	if err = tx.From.IsValid(account.Single, account.Hospital); err != nil {
 		return utils.WrapError("TxH2P_IsValid", err)
 	}
+
+	// P2H不能为空
+	if tx.P2H == nil {
+		return utils.WrapError("TxH2P_IsValid", err)
+	}
+
+	// From = P2H.To
 	if tx.From != tx.P2H.To {
 		return utils.WrapError("TxH2P_IsValid", ErrUnmatchedTxReceiver)
 	}
@@ -134,3 +131,4 @@ func (tx *TxH2P) IsValid() (err error) {
 	return nil
 }
 
+/*******************************************************实现接口*********************************************************/

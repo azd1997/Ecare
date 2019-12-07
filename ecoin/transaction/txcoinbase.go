@@ -11,16 +11,15 @@ import (
 	"github.com/azd1997/Ecare/ecoin/common"
 )
 
-
 // TxCoinbase 出块奖励交易，只允许A类账户接收，A类账户目前包括医院H和第三方研究机构R
 // 由于coinbase交易没有转账者，且必须由出块者构建，所以不设置签名项划定归属。
 type TxCoinbase struct {
-	TxBase
-	Id          common.Hash          `json:"id"`
+//	TxBase
+	Id          common.Hash      `json:"id"`
 	Time        common.TimeStamp `json:"time"`
-	To          account.UserId        `json:"to"`
-	Amount      common.Coin          `json:"amount"`
-	Description string        `json:"description"`
+	To          account.UserId   `json:"to"`
+	Amount      common.Coin      `json:"amount"`
+	Description string           `json:"description"`
 }
 
 // newTxCoinbase 新建出块奖励交易。
@@ -37,7 +36,6 @@ func newTxCoinbase(args *CoinbaseArgs) (tx *TxCoinbase, err error) {
 	tx.Id = id
 	return tx, nil
 }
-
 
 /*******************************************************实现接口*********************************************************/
 
@@ -115,6 +113,5 @@ func (tx *TxCoinbase) IsValid() (err error) {
 
 	return nil
 }
-
 
 /*******************************************************实现接口*********************************************************/

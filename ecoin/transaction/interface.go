@@ -6,7 +6,6 @@ import (
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
-
 // 由于想要实现的是，调用方不知道每一种交易内部实现，因此，调用方只需要使用接口类型和接口方法
 // 而且由于transaction包调用太过频繁，是核心业务，所以尽量缩短命名
 // 因此这里接口命名不使用Ixxx命名方式，直接使用大写缩写TX
@@ -25,7 +24,6 @@ type TX interface {
 
 // Args 新建交易时传入的参数结构体的接口。这样子做可以省掉上一版本中ParseArgs的步骤
 type Args interface {
-
 	// Check 只对Args的格式规范进行约束，像余额等等需要进行查询EAccounts或是Chain的检查移交给上层去做
 	Check() (err error)
 }
@@ -308,8 +306,6 @@ func DeserializeTX(typ uint, txBytes []byte) (tx TX, err error) {
 	}
 }
 
-
-
 // CommercialTX 商业性质交易，像R2P这样的交易属于商业性质，使用这个新的接口将它与其他类型TX区分开来
 type CommercialTX interface {
 	TX
@@ -332,16 +328,16 @@ func DeserializeCommercialTX(txBytes []byte) (tx CommercialTX, err error) {
 }
 
 // Response 回应接口。 一切沟通皆回应。一层包一层，每一个Response都包含国网所有交易沟通细节
+// 暂未使用
 type Response interface {
 	SourceTx() TX
 	String() string
 	TargetData() storage.TargetData
-	Get(string) []byte		// Get("diagnose") ; Get("datakey") ;
+	Get(string) []byte // Get("diagnose") ; Get("datakey") ;
 
 	//Serialize() []byte
 	//Check()
 }
-
 
 // TODO: 再上一个版本耦合状态下，这里的交易验证和参数验证可以将GSM这类全局结构体传入
 // 但现在不行，如果引入的话会导致循环引用。除非使用中间接口来解耦

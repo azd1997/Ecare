@@ -13,13 +13,13 @@ import (
 
 // TxP2R 第三方研究机构向病人发起的数据交易的阶段二交易
 type TxP2R struct {
-	Id          common.Hash      `json:"id"`
-	Time        common.TimeStamp `json:"time"`
-	From        account.UserId   `json:"from"`
-	R2P         *TxR2P           `json:"r2p"`
-	ResponseInfo    []byte           `json:"response"` // 比如说请求数据的密码
-	Description string           `json:"description"`
-	Sig         common.Signature `json:"sig"`
+	Id           common.Hash      `json:"id"`
+	Time         common.TimeStamp `json:"time"`
+	From         account.UserId   `json:"from"`
+	R2P          *TxR2P           `json:"r2p"`
+	ResponseInfo []byte           `json:"response"` // 比如说请求数据的密码
+	Description  string           `json:"description"`
+	Sig          common.Signature `json:"sig"`
 }
 
 // newTxP2R 新建P2R转账交易(R2P交易二段)。
@@ -27,13 +27,13 @@ func newTxP2R(args *P2RArgs) (tx *TxP2R, err error) {
 
 	// 构造tx
 	tx = &TxP2R{
-		Id:          nil,
-		Time:        common.TimeStamp(time.Now().Unix()),
-		From:        args.From,
-		R2P:         args.R2P,
-		ResponseInfo:    args.Response,
-		Description: args.Description,
-		Sig:         nil,
+		Id:           nil,
+		Time:         common.TimeStamp(time.Now().Unix()),
+		From:         args.From,
+		R2P:          args.R2P,
+		ResponseInfo: args.Response,
+		Description:  args.Description,
+		Sig:          nil,
 	}
 
 	// 设置Id
@@ -123,7 +123,6 @@ func (tx *TxP2R) IsValid() (err error) {
 	}
 
 	// TODO： Response可用性检查。这部分交给交易双方自己做，除非达到仲裁条件，由验证节点进行仲裁才会再上层的handleTX方法中去处理
-
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()

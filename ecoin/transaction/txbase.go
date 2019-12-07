@@ -8,6 +8,7 @@ import (
 
 // TxBase 基础交易。空交易，用来保证其他任何自定义交易符合
 // 嵌套该空交易的结构体必须覆盖应该有的方法，这个空交易的所有方法返回报错值
+// 暂未使用
 type TxBase struct {}
 
 func (t *TxBase) String() string { return ""}

@@ -4,65 +4,69 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"github.com/azd1997/Ecare/ecoin/account"
+	"github.com/azd1997/Ecare/ecoin/common"
+	"github.com/azd1997/Ecare/ecoin/utils"
 	"time"
 )
 
 // 仲裁交易，针对商业性质交易如TxR2P的“三次僵持”提出的交易体
 type TxArbitrate struct {
-	ID   Hash          `json:"id"`
-	Time UnixTimeStamp `json:"time"`
+	Id   common.Hash      `json:"id"`
+	Time common.TimeStamp `json:"time"`
 	// TargetTx 仲裁目标
-	TargetTXBytes []byte `json:"targetTXBytes"`
+	TargetTX CommercialTX `json:"targetTX"`
 
-	// ArbitrateResult    []byte        `json:"arbitrateResult"`
+	// TargetTXErr 仲裁时发现的目标交易中存在的问题，只记录是双方某人作恶及作恶形式
+	// 一旦出现三次僵持，必然有一方作恶，不管是有意还是无意。真正的仲裁函数需要根据不同情况处理，
+	// 得到具体的错误信息，然后所有共识节点根据错误信息对交易双方作出惩处
+	// 仲裁结果中这个错误是不会为空的。空值为仲裁异常；
+	// 除非仲裁异常，否则目标交易被按照情况结束
+	// 仲裁异常，则仲裁者受到惩处，目标交易在下一轮POT由新的出块者也就是仲裁者仲裁
+	TargetTXErr error `json:"targetTXErr"`
 
 	// TargetTXComplete 目标交易是否完成，true表示完成，转账生效，否则退回
-	TargetTXComplete bool `json:"targetTXComplete"`
+	// 这个字段相当于仲裁者替目标交易作出的决定
+	//TargetTXComplete bool `json:"targetTXComplete"`
+
 	// Description 描述，可用来附加信息
 	Description string `json:"description"`
+
 	// Arbitrator 仲裁者
-	Arbitrator UserID    `json:"arbitrator"`
-	Sig        Signature `json:"sig"`
+	Arbitrator account.UserId   `json:"arbitrator"`
+	Sig        common.Signature `json:"sig"`
 }
 
-// newTxD2P 新建D2P转账交易(P2D交易二段)。
+// newTxArbitrate 新建仲裁交易。
 func newTxArbitrate(args *ArbitrateArgs) (tx *TxArbitrate, err error) {
-	//// 检验参数
-	//if err = args.CheckArgsValue(); err != nil {
-	//	return nil, utils.WrapError("newTxArbitrate", err)
-	//}
-	//
-	//// 获取仲裁者UserID
-	//arbitratorID, err := args.Arbitrator.UserID(args.Gsm.opts.ChecksumLength(), args.Gsm.opts.Version())
-	//if err != nil {
-	//	return nil, utils.WrapError("newTxArbitrate", err)
-	//}
 
 	// 构造tx
 	tx = &TxArbitrate{
-		ID:               Hash{},
-		Time:             UnixTimeStamp(time.Now().Unix()),
-		TargetTXBytes:    args.TargetTX,
-		TargetTXComplete: args.TargetTXComplete,
-		Description:      args.Description,
-		Arbitrator:       args.Arbitrator,
-		Sig:              Signature{},
+		Id:          nil,
+		Time:        common.TimeStamp(time.Now().Unix()),
+		TargetTX:    args.TargetTX,
+		TargetTXErr: args.TargetTXErr,
+		Description: args.Description,
+		Arbitrator:  args.Arbitrator,
+		Sig:         nil,
 	}
 
 	// 设置Id
 	id, err := tx.Hash()
 	if err != nil {
-		return nil, WrapError("newTxArbitrate", err)
+		return nil, utils.WrapError("newTxArbitrate", err)
 	}
-	tx.ID = id
+	tx.Id = id
 	// 设置签名
 	sig, err := args.ArbitratorAccount.Sign(id)
 	if err != nil {
-		return nil, WrapError("newTxArbitrate", err)
+		return nil, utils.WrapError("newTxArbitrate", err)
 	}
 	tx.Sig = sig
 	return tx, nil
 }
+
+/*******************************************************实现接口*********************************************************/
 
 // TypeNo 获取交易类型编号
 func (tx *TxArbitrate) TypeNo() uint {
@@ -70,17 +74,17 @@ func (tx *TxArbitrate) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxArbitrate) Id() Hash {
-	return tx.ID
+func (tx *TxArbitrate) ID() common.Hash {
+	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxArbitrate) Hash() (hash Hash, err error) {
+func (tx *TxArbitrate) Hash() (hash common.Hash, err error) {
 	txCopy := *tx
-	txCopy.ID, txCopy.Sig = Hash{}, Signature{}
+	txCopy.Id, txCopy.Sig = common.Hash{}, common.Signature{}
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return Hash{}, WrapError("TxArbitrate_Hash", err)
+		return common.Hash{}, utils.WrapError("TxArbitrate_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil
@@ -88,32 +92,12 @@ func (tx *TxArbitrate) Hash() (hash Hash, err error) {
 
 // Serialize 交易序列化为字节切片
 func (tx *TxArbitrate) Serialize() (result []byte, err error) {
-	return GobEncode(tx)
+	return utils.GobEncode(tx)
 }
 
 // String 转换为字符串，用于打印输出
 func (tx *TxArbitrate) String() string {
-	type TxArbitrateForPrint struct {
-		ID          []byte          `json:"id"`
-		Time        string `json:"time"`
-		TargetTXBytes []byte `json:"targetTXBytes"`
-		TargetTXComplete bool `json:"targetTXComplete"`
-		// Description 描述，可用来附加信息
-		Description string `json:"description"`
-		// Arbitrator 仲裁者
-		Arbitrator UserID    `json:"arbitrator"`
-		Sig        Signature `json:"sig"`
-	}
-	txPrint := &TxArbitrateForPrint{
-		ID:          tx.ID,
-		Time:        time.Unix(int64(tx.Time), 0).Format("2006/01/02 15:04:05"),
-		TargetTXBytes:tx.TargetTXBytes,
-		TargetTXComplete:tx.TargetTXComplete,
-		Description: tx.Description,
-		Arbitrator:tx.Arbitrator,
-		Sig:tx.Sig,
-	}
-	return JsonMarshalIndentToString(txPrint)
+	return utils.JsonMarshalIndentToString(tx)
 }
 
 // Deserialize 反序列化，必须提前 tx := &TxArbitrate{} 再调用
@@ -125,78 +109,36 @@ func (tx *TxArbitrate) Deserialize(txAtbitrateBytes []byte) (err error) {
 	buf.Write(txAtbitrateBytes)
 	err = gob.NewDecoder(&buf).Decode(tx)
 	if err != nil {
-		return WrapError("TxArbitrate_Deserialize", err)
+		return utils.WrapError("TxArbitrate_Deserialize", err)
 	}
 	return nil
 }
 
 // IsValid 验证交易是否合乎规则
-func (tx *TxArbitrate) IsValid(gsm *GlobalStateMachine) (err error) {
-
-	/*	tx = &TxArbitrate{
-		Id:          Hash{},
-		Time:        UnixTimeStamp(time.Now().Unix()),
-		TargetTXBytes:    targetTXBytes,
-		TargetTXComplete:    targetTXComplete,
-		Description: description,
-		Arbitrator:arbitratorID,
-		Sig:         Signature{},
-	}*/
+func (tx *TxArbitrate) IsValid() (err error) {
 
 	// 检查交易时间有效性
-	if tx.Time >= UnixTimeStamp(time.Now().Unix()) {
-		return WrapError("TxArbitrate_IsValid", ErrWrongTimeTX)
+	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
+		return utils.WrapError("TxArbitrate_IsValid", ErrWrongTimeTX)
 	}
 
 	// 检查arbitratorID的有效性、可用性、角色权限和from签名是否匹配
-	userIDValid, _ := tx.Arbitrator.IsValid()
-	if !userIDValid {
-		return WrapError("TxArbitrate_IsValid", ErrInvalidUserID)
-	}
-	arbitratorEcoinAccount, ok := gsm.Accounts.Map[tx.Arbitrator.ID]
-	if !ok {
-		return WrapError("TxArbitrate_IsValid", ErrNonexistentUserID)
-	}
-	if !arbitratorEcoinAccount.Available() {
-		return WrapError("TxArbitrate_IsValid", ErrUnavailableUserID)
-	}
-	if arbitratorEcoinAccount.Role().No() >= 10 {
-		return WrapError("TxArbitrate_IsValid", ErrNoCoinbasePermitRole)
-	}
-	if !VerifySignature(tx.ID[:], tx.Sig, arbitratorEcoinAccount.PubKey()) {
-		return WrapError("TxArbitrate_IsValid", ErrInconsistentSignature)
+	if err = tx.Arbitrator.IsValid(account.A, 0); err != nil {
+		return utils.WrapError("TxArbitrate_IsValid", err)
 	}
 
-	// TODO： 仲裁结果验证，这里不进行，丢给上层调用函数HandleTX去做。
-
-	// 检查前部交易是不是一个未完成的商业性质交易，为空则错误；不为空必须是符合商业性质交易体且交易ID在未完成交易池中，否则认为是不合法交易
-	if tx.TargetTXBytes == nil || bytes.Compare(tx.TargetTXBytes, []byte{}) == 0 {
-		return WrapError("TxArbitrate_IsValid", ErrEmptySoureTX)
-	}
-	// 其实可以把这个判断条件去掉，但是算了
-	if bytes.Compare(tx.TargetTXBytes, []byte{}) != 0 {
-		// 反序列化出商业交易
-		var prevTx CommercialTX
-		prevTx, err = DeserializeCommercialTX(tx.TargetTXBytes)
-		if err != nil {
-			return WrapError("TxArbitrate_IsValid", err)
-		}
-		// 获取商业交易ID
-		txId, err := prevTx.Hash()
-		if err != nil {
-			return WrapError("TxArbitrate_IsValid", err)
-		}
-
-		if _, ok := gsm.UCTXP.Map[string(txId)]; !ok {
-			return WrapError("TxArbitrate_IsValid", ErrNotUncompletedTX)
-		}
+	// 目标交易不能为空。 至于目标交易更多的验证不在这里做
+	if tx.TargetTX == nil {
+		return utils.WrapError("TxArbitrate_IsValid", err)
 	}
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
-	if string(txHash) != string(tx.ID) {
-		return WrapError("TxArbitrate_IsValid", ErrWrongTXID)
+	if string(txHash) != string(tx.Id) {
+		return utils.WrapError("TxArbitrate_IsValid", ErrWrongTXID)
 	}
 
 	return nil
 }
+
+/*******************************************************实现接口*********************************************************/

@@ -13,7 +13,7 @@ import (
 
 // TxGeneral 通用交易， 一方转给另一方，无需确认
 type TxGeneral struct {
-	TxBase
+//	TxBase
 	Id          common.Hash      `json:"id"`
 	Time        common.TimeStamp `json:"time"`
 	From        account.UserId   `json:"from"`
@@ -26,16 +26,6 @@ type TxGeneral struct {
 // newTxGeneral 新建普通转账交易。
 // 这里是内部函数，使用GeneralArgs传参；该函数的上一层进行包装时使用Args进行传参，而后使用断言进入本函数
 func newTxGeneral(args *GeneralArgs) (tx *TxGeneral, err error) {
-	//// 检验参数
-	//if err = args.CheckArgsValue(); err != nil {
-	//	return nil, utils.WrapError("newTxGeneral", err)
-	//}
-
-	//// 获取转账者UserID
-	//fromID, err := args.From.UserID(args.Gsm.opts.ChecksumLength(), args.Gsm.opts.Version())
-	//if err != nil {
-	//	return nil, utils.WrapError("newTxGeneral", err)
-	//}
 
 	// 构造tx
 	tx = &TxGeneral{
@@ -114,19 +104,6 @@ func (tx *TxGeneral) Deserialize(data []byte) (err error) {
 // 这个方法提供给检查交易方调用，而args.Check由制造交易者调用
 func (tx *TxGeneral) IsValid() (err error) {
 
-	/*	tx = &TxGeneral{
-			BaseTransaction: BaseTransaction{
-				Id:          Hash{},
-				Time:        UnixTimeStamp(time.Now().Unix()),
-				To:          to,
-				Amount:      amount,
-				Description: description,
-			},
-			From: fromID,
-			Sig:  Signature{},
-		}
-	*/
-
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
 		return utils.WrapError("TxGeneral_IsValid", ErrWrongTimeTX)
@@ -138,19 +115,10 @@ func (tx *TxGeneral) IsValid() (err error) {
 		return utils.WrapError("TxGeneral_IsValid", err)
 	}
 
-
 	// 检查 To 的有效性
 	if err = tx.To.IsValid(account.All, 0); err != nil {
 		return utils.WrapError("TxGeneral_IsValid", err)
 	}
-
-	// 检查 amount 有效性(余额是否足够)
-	// 交给tx包调用者去做
-
-	// TODO: 检查 description 格式
-
-
-	// TODO: 签名验证、余额验证交由上层处理
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()

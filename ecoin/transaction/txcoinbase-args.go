@@ -17,15 +17,9 @@ type CoinbaseArgs struct {
 func (args *CoinbaseArgs) Check() (err error) {
 	// 检查 to 的有效性
 	// coinbase交易只允许出块节点构建，而出块节点的roleNo 0~9
-	if err = args.To.IsValid(account.A, account.AllRole); err != nil {
+	if err = args.To.IsValid(account.A, 0); err != nil {
 		return utils.WrapError("Args_Check", err)
 	}
-
-
-	// 检查 amount 有效性
-	// TODO: 检查coinbase奖励是否合乎规则
-
-	// TODO: 检查 description 格式，以及代码注入？
 
 	return nil
 }

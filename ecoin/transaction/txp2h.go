@@ -4,15 +4,13 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
-	"github.com/azd1997/Ecare/ecoin/utils"
 	"time"
 
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/common"
 	"github.com/azd1997/Ecare/ecoin/storage"
+	"github.com/azd1997/Ecare/ecoin/utils"
 )
-
-
 
 // TxP2H 病人向医院发起的心电数据诊断，分人工和机器自动分析两种。阶段一
 type TxP2H struct {
@@ -22,24 +20,13 @@ type TxP2H struct {
 	To             account.UserId     `json:"to"`
 	Amount         common.Coin        `json:"amount"`
 	PurchaseTarget storage.TargetData `json:"purchaseTarget"`
-	PurchaseType    uint8              `json:"purchaseType"` // Auto/Doctor 0/1
+	PurchaseType   uint8              `json:"purchaseType"` // Auto/Doctor 0/1
 	Description    string             `json:"description"`
 	Sig            common.Signature   `json:"sig"`
 }
 
 // newTxP2H 新建P2H转账交易。
 func newTxP2H(args *P2HArgs) (tx *TxP2H, err error) {
-
-	//// 检验参数
-	//if err = args.CheckArgsValue(); err != nil {
-	//	return nil, utils.WrapError("newTxP2H", err)
-	//}
-	//
-	//// 获取转账者UserID
-	//fromID, err := args.From.UserID(args.Gsm.opts.ChecksumLength(), args.Gsm.opts.Version())
-	//if err != nil {
-	//	return nil, utils.WrapError("newTxP2H", err)
-	//}
 
 	// 构造tx
 	tx = &TxP2H{
@@ -68,6 +55,9 @@ func newTxP2H(args *P2HArgs) (tx *TxP2H, err error) {
 	tx.Sig = sig
 	return tx, nil
 }
+
+/*******************************************************实现接口*********************************************************/
+
 
 // TypeNo 获取交易类型编号
 func (tx *TxP2H) TypeNo() uint {
@@ -149,4 +139,4 @@ func (tx *TxP2H) IsValid() (err error) {
 	return nil
 }
 
-
+/*******************************************************实现接口*********************************************************/

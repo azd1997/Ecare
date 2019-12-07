@@ -10,8 +10,8 @@ import (
 // P2HArgs 新建交易函数newTxP2H()的传参
 type P2HArgs struct {
 	//	BaseArgs
-	FromAccount           account.Account
-	From         account.UserId
+	FromAccount    account.Account
+	From           account.UserId
 	To             account.UserId
 	Amount         common.Coin
 	Description    string
@@ -39,11 +39,6 @@ func (args *P2HArgs) Check() (err error) {
 	if err = args.To.IsValid(account.Single, account.Hospital); err != nil {
 		return utils.WrapError("Args_Check", err)
 	}
-
-	// 检查 amount 有效性(余额是否足够)
-
-
-	// TODO: 检查 description 格式，以及代码注入？
 
 	// 检查 purchaseTarget是否有效？
 	if err = args.PurchaseTarget.IsOk(); err != nil {

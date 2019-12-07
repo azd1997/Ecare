@@ -11,30 +11,19 @@ import (
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
-
 // TxD2P 病人向下班医生发起的心电诊断交易，阶段二
 type TxD2P struct {
-	Id          common.Hash          `json:"id"`
+	Id          common.Hash      `json:"id"`
 	Time        common.TimeStamp `json:"time"`
-	From        account.UserId        `json:"from"`
-	P2D    *TxP2D        `json:"p2dBytes"`
-	Response    []byte        `json:"response"` // 比如说请求数据的密码
-	Description string        `json:"description"`
-	Sig         common.Signature     `json:"sig"`
+	From        account.UserId   `json:"from"`
+	P2D         *TxP2D           `json:"p2dBytes"`
+	Response    []byte           `json:"response"` // 比如说请求数据的密码
+	Description string           `json:"description"`
+	Sig         common.Signature `json:"sig"`
 }
 
 // newTxD2P 新建D2P转账交易(P2D交易二段)。
 func newTxD2P(args *D2PArgs) (tx *TxD2P, err error) {
-	//// 检验参数
-	//if err = args.CheckArgsValue(); err != nil {
-	//	return nil, utils.WrapError("newTxD2P", err)
-	//}
-	//
-	//// 获取转账者UserID
-	//fromID, err := args.From.UserID(args.Gsm.opts.ChecksumLength(), args.Gsm.opts.Version())
-	//if err != nil {
-	//	return nil, utils.WrapError("newTxD2P", err)
-	//}
 
 	// 构造tx
 	tx = &TxD2P{
@@ -61,6 +50,8 @@ func newTxD2P(args *D2PArgs) (tx *TxD2P, err error) {
 	tx.Sig = sig
 	return tx, nil
 }
+
+/*******************************************************实现接口*********************************************************/
 
 // TypeNo 获取交易类型编号
 func (tx *TxD2P) TypeNo() uint {
@@ -111,34 +102,25 @@ func (tx *TxD2P) Deserialize(d2pBytes []byte) (err error) {
 // IsValid 验证交易是否合乎规则
 func (tx *TxD2P) IsValid() (err error) {
 
-	/*	tx = &TxD2P{
-		Id:          Hash{},
-		Time:        UnixTimeStamp(time.Now().Unix()),
-		From:fromID,
-		P2DBytes:    p2dBytes,
-		Response:    response,
-		Description: description,
-		Sig:         Signature{},
-	}*/
-
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
 		return utils.WrapError("TxD2P_IsValid", ErrWrongTimeTX)
 	}
 
-	// 检查FromId有效性及是否与P2D的to匹配
+	// 检查From有效性
 	if err = tx.From.IsValid(account.Single, account.Doctor); err != nil {
 		return utils.WrapError("TxD2P_IsValid", err)
 	}
+
+	// P2D不能为空
+	if tx.P2D == nil {
+		return utils.WrapError("TxD2P_IsValid", err)
+	}
+
+	// 是否与P2D的to匹配
 	if tx.From != tx.P2D.To {
 		return utils.WrapError("TxD2P_IsValid", ErrUnmatchedTxReceiver)
 	}
-
-	// 检查fromID的有效性、可用性和from签名是否匹配
-
-	// TODO： Response可用性检查。这部分交给交易双方自己做，除非达到仲裁条件，由验证节点进行仲裁才会再上层的handleTX方法中去处理
-
-	// 检查前部交易是不是一个P2D交易，为空则错误；不为空必须是符合P2D交易体且交易ID在未完成交易池中，否则认为是不合法交易
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
@@ -149,4 +131,4 @@ func (tx *TxD2P) IsValid() (err error) {
 	return nil
 }
 
-
+/*******************************************************实现接口*********************************************************/

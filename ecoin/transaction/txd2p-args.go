@@ -16,8 +16,6 @@ type D2PArgs struct {
 
 // Check 检查参数值是否合规
 func (args *D2PArgs) Check() (err error) {
-	// 检查from? 不需要，因为就是往上给account调用的
-
 
 	// 检查From
 	if err = args.From.IsValid(account.Single, account.Patient); err != nil {
@@ -28,6 +26,10 @@ func (args *D2PArgs) Check() (err error) {
 	// 交易验证时这部分工作由上层去做，参数校验时只调用也应该在上层维护一个未完成交易池（只与自己相关），
 	// 然后在里边找这个P2D然后传入。因此这里也没什么必要检查P2D的存在性
 	// 但根据P2D内容可以检查交易双方的对应关系
+	// P2D不能为空
+	if args.P2D == nil {
+		return utils.WrapError("Args_Check", err)
+	}
 
 	// 检查p2D内to是否和此时的from对应，都是本机拥有的账户
 	selfId, err := args.FromAccount.UserId()
@@ -38,9 +40,6 @@ func (args *D2PArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", ErrUnmatchedTxReceiver)
 	}
 
-	// TODO: 检查 response 有效性
-
-	// TODO: 检查 description 格式，以及代码注入？
 
 	// 参数有效
 	return nil

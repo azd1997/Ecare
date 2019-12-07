@@ -7,11 +7,11 @@ import (
 
 // ArbitrateArgs 新建交易函数newTxArbitrate()的传参
 type ArbitrateArgs struct {
-	//	BaseArgs
-	ArbitratorAccount       account.Account
-	Arbitrator     account.UserId
-	TargetTX    CommercialTX
-	Description      string
+	ArbitratorAccount account.Account
+	Arbitrator        account.UserId
+	TargetTX          CommercialTX
+	TargetTXErr       error
+	Description       string
 }
 
 // CheckArgsValue 检查参数值是否合规
