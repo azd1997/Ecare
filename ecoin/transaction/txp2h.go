@@ -110,7 +110,7 @@ func (tx *TxP2H) IsValid() (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
-		return utils.WrapError("TxP2H_IsValid", ErrWrongTimeTX)
+		return utils.WrapError("TxP2H_IsValid", ErrWrongTime)
 	}
 
 	// 检查to id有效性和账号是否可用
@@ -133,7 +133,7 @@ func (tx *TxP2H) IsValid() (err error) {
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
-		return utils.WrapError("TxP2H_IsValid", ErrWrongTXID)
+		return utils.WrapError("TxP2H_IsValid", ErrWrongTxId)
 	}
 
 	return nil

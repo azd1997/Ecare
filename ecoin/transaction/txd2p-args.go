@@ -37,7 +37,7 @@ func (args *D2PArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", err)
 	}
 	if selfId != args.P2D.To || selfId != args.From {
-		return utils.WrapError("Args_Check", ErrUnmatchedTxReceiver)
+		return utils.WrapError("Args_Check", ErrUnmatchedSender)
 	}
 
 

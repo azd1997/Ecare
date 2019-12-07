@@ -23,12 +23,12 @@ func (args *ArbitrateArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", err)
 	}
 	if arbitrator != args.Arbitrator {
-		return utils.WrapError("Args_Check", ErrUnmatchedTxReceiver)
+		return utils.WrapError("Args_Check", ErrUnmatchedSender)
 	}
 
 	// TargetTX 不能为空
 	if args.TargetTX == nil {
-		return utils.WrapError("Args_Check", err)
+		return utils.WrapError("Args_Check", ErrNilSourceTx)
 	}
 
 	// 参数有效

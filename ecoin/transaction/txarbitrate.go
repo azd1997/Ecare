@@ -119,7 +119,7 @@ func (tx *TxArbitrate) IsValid() (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
-		return utils.WrapError("TxArbitrate_IsValid", ErrWrongTimeTX)
+		return utils.WrapError("TxArbitrate_IsValid", ErrWrongTime)
 	}
 
 	// 检查arbitratorID的有效性、可用性、角色权限和from签名是否匹配
@@ -129,13 +129,13 @@ func (tx *TxArbitrate) IsValid() (err error) {
 
 	// 目标交易不能为空。 至于目标交易更多的验证不在这里做
 	if tx.TargetTX == nil {
-		return utils.WrapError("TxArbitrate_IsValid", err)
+		return utils.WrapError("TxArbitrate_IsValid", ErrNilSourceTx)
 	}
 
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
-		return utils.WrapError("TxArbitrate_IsValid", ErrWrongTXID)
+		return utils.WrapError("TxArbitrate_IsValid", ErrWrongTxId)
 	}
 
 	return nil

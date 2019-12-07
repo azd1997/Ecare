@@ -29,7 +29,7 @@ func (args *P2HArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", err)
 	}
 	if args.From != fromID {
-		return utils.WrapError("Args_Check", ErrWrongArguments)
+		return utils.WrapError("Args_Check", ErrWrongArgs)
 	}
 	if err = args.From.IsValid(account.Single, account.Patient); err != nil {
 		return utils.WrapError("Args_Check", err)

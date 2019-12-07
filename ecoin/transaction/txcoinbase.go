@@ -93,7 +93,7 @@ func (tx *TxCoinbase) IsValid() (err error) {
 	// 检查时间戳是否比现在早（至于是不是早太多就不检查了，早太多的话余额那里是不会给过的）（情况A）； 时间戳是否比区块时间早（情况B）
 	// 但是要注意情况A调用检查一定比情况B早，所以只要满足情况A就一定满足情况B (或者说，如果情况A不通过，也就不会进入到情况B检查)。所以，只检查情况A就好
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
-		return utils.WrapError("TxCoinbase_IsValid", ErrWrongTimeTX)
+		return utils.WrapError("TxCoinbase_IsValid", ErrWrongTime)
 	}
 
 	// 检查 To
@@ -104,7 +104,7 @@ func (tx *TxCoinbase) IsValid() (err error) {
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
-		return utils.WrapError("TxCoinbase_IsValid", ErrWrongTXID)
+		return utils.WrapError("TxCoinbase_IsValid", ErrWrongTxId)
 	}
 
 	// TODO： Coinbase还有一个检查点：其由出块节点构造，但在验证过程中必须检查是不是填了出块节点账户。因此在出块节点检查区块时需要有一个区块的检查方法

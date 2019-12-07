@@ -24,7 +24,7 @@ func (args *P2RArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", err)
 	}
 	if args.From != fromID {
-		return utils.WrapError("Args_Check", ErrWrongArguments)
+		return utils.WrapError("Args_Check", ErrWrongArgs)
 	}
 	if err = args.From.IsValid(account.Single, account.Patient); err != nil {
 		return utils.WrapError("Args_Check", err)
@@ -37,7 +37,7 @@ func (args *P2RArgs) Check() (err error) {
 
 	// 检查r2p内to是否和此时的from对应，都是本机拥有的账户
 	if fromID != args.R2P.To {
-		return utils.WrapError("Args_Check", ErrUnmatchedTxReceiver)
+		return utils.WrapError("Args_Check", ErrUnmatchedSender)
 
 	}
 

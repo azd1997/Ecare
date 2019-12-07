@@ -30,7 +30,7 @@ func (args *R2PArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", err)
 	}
 	if args.From != fromID {
-		return utils.WrapError("Args_Check", ErrWrongArguments)
+		return utils.WrapError("Args_Check", ErrWrongArgs)
 	}
 	if err = args.From.IsValid(account.Single, account.ResearchInstitution); err != nil {
 		return utils.WrapError("Args_Check", err)
@@ -44,10 +44,10 @@ func (args *R2PArgs) Check() (err error) {
 	// 检查to与P2R的from是否匹配
 	if args.P2R != nil {
 		if args.To != args.P2R.From {
-			return utils.WrapError("Args_Check", ErrUnmatchedTxReceiver)
+			return utils.WrapError("Args_Check", ErrUnmatchedReceiver)
 		}
 		if args.From != args.P2R.R2P.From {
-			return utils.WrapError("Args_Check", ErrUnmatchedTxSender)
+			return utils.WrapError("Args_Check", ErrUnmatchedSender)
 		}
 	}
 

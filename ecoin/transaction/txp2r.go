@@ -104,7 +104,7 @@ func (tx *TxP2R) IsValid() (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
-		return utils.WrapError("TxP2R_IsValid", ErrWrongTimeTX)
+		return utils.WrapError("TxP2R_IsValid", ErrWrongTime)
 	}
 
 	// 检查From
@@ -114,12 +114,12 @@ func (tx *TxP2R) IsValid() (err error) {
 
 	// 检查前部交易R2P不能为空。
 	if tx.R2P == nil {
-		return utils.WrapError("TxP2R_IsValid", ErrUnmatchedTxReceiver)
+		return utils.WrapError("TxP2R_IsValid", ErrNilSourceTx)
 	}
 
 	// 确保与来源交易接收者匹配
 	if tx.From != tx.R2P.To {
-		return utils.WrapError("TxP2R_IsValid", ErrUnmatchedTxReceiver)
+		return utils.WrapError("TxP2R_IsValid", ErrUnmatchedSender)
 	}
 
 	// TODO： Response可用性检查。这部分交给交易双方自己做，除非达到仲裁条件，由验证节点进行仲裁才会再上层的handleTX方法中去处理
@@ -127,7 +127,7 @@ func (tx *TxP2R) IsValid() (err error) {
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
-		return utils.WrapError("TxP2R_IsValid", ErrWrongTXID)
+		return utils.WrapError("TxP2R_IsValid", ErrWrongTxId)
 	}
 
 	return nil

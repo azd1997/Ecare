@@ -35,7 +35,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*CoinbaseArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -46,7 +46,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*GeneralArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -57,7 +57,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*R2PArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -68,7 +68,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*P2RArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -79,7 +79,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*P2HArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -90,7 +90,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*H2PArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -101,7 +101,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*P2DArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -112,7 +112,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*D2PArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -123,7 +123,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*ArbitrateArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		if err := args.Check(); err != nil {
 			return nil, err
@@ -131,7 +131,7 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 		// 2. 新建交易
 		return newTxArbitrate(args)
 	default:
-		return nil, ErrUnknownTransactionType
+		return nil, ErrUnknownTxType
 	}
 }
 
@@ -142,7 +142,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*CoinbaseArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxCoinbase(args) // *TxCoinbase 实现了 TX 接口， 粗略的可以认为一个×TxCoinbase是一个TX
@@ -150,7 +150,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*GeneralArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxGeneral(args)
@@ -158,7 +158,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*R2PArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxR2P(args)
@@ -166,7 +166,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*P2RArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxP2R(args)
@@ -174,7 +174,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*P2HArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxP2H(args)
@@ -182,7 +182,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*H2PArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxH2P(args)
@@ -190,7 +190,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*P2DArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxP2D(args)
@@ -198,7 +198,7 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*D2PArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxD2P(args)
@@ -206,12 +206,12 @@ func newTransaction(typ uint, args Args) (TX, error) {
 		// 1. 检查参数
 		args, ok := args.(*ArbitrateArgs)
 		if !ok {
-			return nil, ErrWrongArgsForNewTX
+			return nil, ErrWrongArgs
 		}
 		// 2. 新建交易
 		return newTxArbitrate(args)
 	default:
-		return nil, ErrUnknownTransactionType
+		return nil, ErrUnknownTxType
 	}
 }
 
@@ -302,7 +302,7 @@ func DeserializeTX(typ uint, txBytes []byte) (tx TX, err error) {
 		}
 		return nil, utils.WrapError("DeserializeTX", ErrNotTxBytes)
 	default:
-		return nil, utils.WrapError("DeserializeTX", ErrUnknownTransactionType)
+		return nil, utils.WrapError("DeserializeTX", ErrNotTxBytes)
 	}
 }
 

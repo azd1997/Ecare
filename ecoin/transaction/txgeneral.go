@@ -106,7 +106,7 @@ func (tx *TxGeneral) IsValid() (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
-		return utils.WrapError("TxGeneral_IsValid", ErrWrongTimeTX)
+		return utils.WrapError("TxGeneral_IsValid", ErrWrongTime)
 	}
 
 	// 检查From
@@ -123,7 +123,7 @@ func (tx *TxGeneral) IsValid() (err error) {
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
-		return utils.WrapError("TxGeneral_IsValid", ErrWrongTXID)
+		return utils.WrapError("TxGeneral_IsValid", ErrWrongTxId)
 	}
 
 	return nil

@@ -28,7 +28,7 @@ func (args *P2DArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", err)
 	}
 	if args.From != fromID {
-		return utils.WrapError("Args_Check", ErrWrongArguments)
+		return utils.WrapError("Args_Check", ErrWrongArgs)
 	}
 
 	// 检查 to 的有效性

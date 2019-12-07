@@ -30,11 +30,11 @@ func (args *GeneralArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", err)
 	}
 	if args.From != fromId {
-		return utils.WrapError("Args_Check", ErrWrongArguments)
+		return utils.WrapError("Args_Check", ErrWrongArgs)
 	}
 
 	// 检查 to 的有效性
-	if err = args.To.IsValid(account.All, account.AllRole); err != nil {
+	if err = args.To.IsValid(account.All, 0); err != nil {
 		return utils.WrapError("Args_Check", err)
 	}
 

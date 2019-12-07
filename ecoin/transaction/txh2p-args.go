@@ -34,7 +34,7 @@ func (args *H2PArgs) Check() (err error) {
 
 	//
 	if args.From != fromID || args.From != args.P2H.To {
-		return utils.WrapError("Args_Check", ErrUnmatchedTxReceiver)
+		return utils.WrapError("Args_Check", ErrUnmatchedSender)
 	}
 
 	// 参数有效

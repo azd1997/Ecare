@@ -124,7 +124,7 @@ func (tx *TxR2P) IsValid() (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
-		return utils.WrapError("TxR2P_IsValid", ErrWrongTimeTX)
+		return utils.WrapError("TxR2P_IsValid", ErrWrongTime)
 	}
 
 	// 检查 From
@@ -140,10 +140,10 @@ func (tx *TxR2P) IsValid() (err error) {
 	// 检查to与P2R的from是否匹配
 	if tx.P2R != nil {
 		if tx.To != tx.P2R.From {
-			return utils.WrapError("TxR2P_IsValid", ErrUnmatchedTxReceiver)
+			return utils.WrapError("TxR2P_IsValid", ErrUnmatchedReceiver)
 		}
 		if tx.From != tx.P2R.R2P.From { // 只要tx.P2R非空，那么一定满足该条件，不会panic。
-			return utils.WrapError("TxR2P_IsValid", ErrUnmatchedTxSender)
+			return utils.WrapError("TxR2P_IsValid", ErrUnmatchedSender)
 		}
 	}
 
@@ -155,7 +155,7 @@ func (tx *TxR2P) IsValid() (err error) {
 	// 验证交易ID是不是正确设置
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
-		return utils.WrapError("TxR2P_IsValid", ErrWrongTXID)
+		return utils.WrapError("TxR2P_IsValid", ErrWrongTxId)
 	}
 
 	return nil
