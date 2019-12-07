@@ -17,13 +17,14 @@ type TxArbitrate struct {
 	// TargetTx 仲裁目标
 	TargetTX CommercialTX `json:"targetTX"`
 
-	// TargetTXErr 仲裁时发现的目标交易中存在的问题，只记录是双方某人作恶及作恶形式
+	// Arbitration 仲裁时发现的目标交易中存在的问题，只记录是双方某人作恶及作恶形式
 	// 一旦出现三次僵持，必然有一方作恶，不管是有意还是无意。真正的仲裁函数需要根据不同情况处理，
 	// 得到具体的错误信息，然后所有共识节点根据错误信息对交易双方作出惩处
 	// 仲裁结果中这个错误是不会为空的。空值为仲裁异常；
 	// 除非仲裁异常，否则目标交易被按照情况结束
 	// 仲裁异常，则仲裁者受到惩处，目标交易在下一轮POT由新的出块者也就是仲裁者仲裁
-	TargetTXErr error `json:"targetTXErr"`
+	// 这些错误由Arbitration码表示，匹配不到说明仲裁异常
+	Arbitration Arbitration `json:"arbitration"`
 
 	// TargetTXComplete 目标交易是否完成，true表示完成，转账生效，否则退回
 	// 这个字段相当于仲裁者替目标交易作出的决定
@@ -45,7 +46,7 @@ func newTxArbitrate(args *ArbitrateArgs) (tx *TxArbitrate, err error) {
 		Id:          nil,
 		Time:        common.TimeStamp(time.Now().Unix()),
 		TargetTX:    args.TargetTX,
-		TargetTXErr: args.TargetTXErr,
+		Arbitration: args.Arbitration,
 		Description: args.Description,
 		Arbitrator:  args.Arbitrator,
 		Sig:         nil,
@@ -92,6 +93,8 @@ func (tx *TxArbitrate) Hash() (hash common.Hash, err error) {
 
 // Serialize 交易序列化为字节切片
 func (tx *TxArbitrate) Serialize() (result []byte, err error) {
+	utils.GobRegister(&TxCoinbase{}, &TxGeneral{}, &TxR2P{}, &TxP2R{},
+		&TxP2H{}, &TxH2P{}, &TxP2D{}, &TxD2P{}, &TxArbitrate{})
 	return utils.GobEncode(tx)
 }
 
@@ -130,6 +133,11 @@ func (tx *TxArbitrate) IsValid() (err error) {
 	// 目标交易不能为空。 至于目标交易更多的验证不在这里做
 	if tx.TargetTX == nil {
 		return utils.WrapError("TxArbitrate_IsValid", ErrNilSourceTx)
+	}
+
+	// 验证Arbitration
+	if err = tx.Arbitration.IsValid(); err != nil {
+		return utils.WrapError("TxArbitrate_IsValid", err)
 	}
 
 	// 验证交易ID是不是正确设置

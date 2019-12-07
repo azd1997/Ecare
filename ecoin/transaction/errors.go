@@ -13,14 +13,12 @@ var (
 	ErrWrongTime             = errors.New("wrong time tx")
 	ErrUnknownPurchaseType   = errors.New("unknown purchase type")
 	ErrWrongTxId             = errors.New("wrong tx id")
-	ErrInvalidUserId         = errors.New("invalid account userId")
-	ErrNonexistentUserId     = errors.New("nonexistent account userId")
-	ErrUnavailableUserId     = errors.New("unavailable account userId")
 	ErrNotSufficientBalance  = errors.New("not sufficient balance")
 	ErrNotTxBytes            = errors.New("not bytes of a tx")
 	ErrNotCommercialTxBytes  = errors.New("not bytes of a commercial tx")
 	ErrInconsistentSignature = errors.New("inconsistent signature")
 	ErrNilSourceTx           = errors.New("nil source tx")
+	ErrUnknownArbitrationCode = errors.New("unknown arbitration code")
 
 	/*除上面外，外部调用本包产生的与tx直接相关的错误*/
 

@@ -28,8 +28,8 @@ type Args interface {
 	Check() (err error)
 }
 
-// NewTransactionWithArgsCheck 新建一个交易，传入交易类型与其他参数，构建具体的交易。
-func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
+// NewTXWithArgsCheck 新建一个交易，传入交易类型与其他参数，构建具体的交易。
+func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 	switch typ {
 	case TX_COINBASE:
 		// 1. 检查参数
@@ -135,8 +135,8 @@ func newTransactionWithArgsCheck(typ uint, args Args) (TX, error) {
 	}
 }
 
-// NewTransaction 新建一个交易，传入交易类型与其他参数，构建具体的交易。 一定要严格检查输入参数顺序和类型！！！
-func newTransaction(typ uint, args Args) (TX, error) {
+// NewTX 新建一个交易，传入交易类型与其他参数，构建具体的交易。 一定要严格检查输入参数顺序和类型！！！
+func NewTX(typ uint, args Args) (TX, error) {
 	switch typ {
 	case TX_COINBASE:
 		// 1. 检查参数

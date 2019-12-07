@@ -1,47 +1,48 @@
 package tx
 
-import "fmt"
+import (
+	"fmt"
+	"testing"
 
-// TxCoinbase在测试区块等时已测试过
+	"github.com/azd1997/Ecare/ecoin/account"
+)
 
-// TODO: 带有gsm参数的方法待测试
-
-func accountAndUserIDForTest() (*Account, *UserID) {
+func accountAndUserIDForTest() (*account.Account, account.UserId) {
 	// 构造交易
-	acc, err := NewAccount(1)
+	acc, err := account.NewAccount(1)
 	if err != nil {
 		panic(err)
 	}
 
-	userid, err := acc.UserID()
+	userid, err := acc.UserId()
 	if err != nil {
 		panic(err)
 	}
 
-	return acc, &userid
+	return acc, userid
 }
 
 func TestNewTxGeneral(t *testing.T) {
 	acc, userID := accountAndUserIDForTest()
 	_, userIDTo := accountAndUserIDForTest()
-	fmt.Printf("from: %s\n", userID)
-	fmt.Printf("to: %s\n", userIDTo)
+	fmt.Printf("from: %v\n", userID)
+	fmt.Printf("to: %v\n", userIDTo)
 
 	// 构造参数
 	args := &GeneralArgs{
-		From:        acc,
-		FromID:      *userID,
-		To:          *userIDTo,
+		FromAccount: *acc,
+		From:        userID,
+		To:          userIDTo,
 		Amount:      99,
 		Description: "txGeneral",
 	}
 
 	// 生成交易
-	tx, err := newTxGeneral(args)	// new过程已测试Hash/Sign方法
+	tx, err := NewTXWithArgsCheck(TX_GENERAL, args) // new过程已测试Hash/Sign方法
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Printf("tx: %s\n", tx)  // 测试String方法
+	fmt.Printf("tx: %s\n", tx) // 测试String方法
 
 	// 测试序列化与反序列化
 	txBytes, err := tx.Serialize()
@@ -58,23 +59,23 @@ func TestNewTxGeneral(t *testing.T) {
 
 func TestNewTxArbitrate(t *testing.T) {
 	acc, userID := accountAndUserIDForTest()
-	fmt.Printf("arbitrator: %s\n", userID)
+	fmt.Printf("arbitrator: %v\n", userID)
 
 	// 构造参数
 	args := &ArbitrateArgs{
-		Arbitrator:        acc,
-		ArbitratorID:*userID,
-		TargetTXBytes:[]byte("这是一个待仲裁的交易"),
-		TargetTXComplete:false,
-		Description: "txArbitrate",
+		ArbitratorAccount: *acc,
+		Arbitrator:        userID,
+		TargetTX:          &TxR2P{},
+		Arbitration:       BuyerFaultLevel3,
+		Description:       "txArbitrate",
 	}
 
 	// 生成交易
-	tx, err := newTxArbitrate(args)	// new过程已测试Hash方法
+	tx, err := NewTXWithArgsCheck(TX_ARBITRATE, args) // new过程已测试Hash方法
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Printf("tx: %s\n", tx)  // 测试String方法
+	fmt.Printf("tx: %s\n", tx) // 测试String方法
 
 	// 测试序列化与反序列化
 	txBytes, err := tx.Serialize()
@@ -89,26 +90,25 @@ func TestNewTxArbitrate(t *testing.T) {
 	fmt.Printf("tx1: %s\n", tx1)
 }
 
-
 func TestNewTxD2P(t *testing.T) {
 	acc, userID := accountAndUserIDForTest()
-	fmt.Printf("from: %s\n", userID)
+	fmt.Printf("from: %v\n", userID)
 
 	// 构造参数
-	args := &TxD2PArgs{
-		From:        acc,
-		FromID:*userID,
-		P2DBytes:[]byte("这是一个待仲裁的交易"),
-		Response:[]byte("这是一个回应"),
+	args := &D2PArgs{
+		FromAccount: *acc,
+		From:        userID,
+		P2D:         &TxP2D{},
+		Response:    []byte("这是一个回应"),
 		Description: "txD2P",
 	}
 
 	// 生成交易
-	tx, err := newTxD2P(args)	// new过程已测试Hash方法
+	tx, err := newTxD2P(args) // new过程已测试Hash方法
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Printf("tx: %s\n", tx)  // 测试String方法
+	fmt.Printf("tx: %s\n", tx) // 测试String方法
 
 	// 测试序列化与反序列化
 	txBytes, err := tx.Serialize()
@@ -122,4 +122,3 @@ func TestNewTxD2P(t *testing.T) {
 	}
 	fmt.Printf("tx1: %s\n", tx1)
 }
-

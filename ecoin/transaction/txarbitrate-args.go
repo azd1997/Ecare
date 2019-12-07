@@ -10,11 +10,11 @@ type ArbitrateArgs struct {
 	ArbitratorAccount account.Account
 	Arbitrator        account.UserId
 	TargetTX          CommercialTX
-	TargetTXErr       error
+	Arbitration       Arbitration
 	Description       string
 }
 
-// CheckArgsValue 检查参数值是否合规
+// Check 检查参数值是否合规
 func (args *ArbitrateArgs) Check() (err error) {
 
 	// 检查Arbitrator
@@ -30,6 +30,8 @@ func (args *ArbitrateArgs) Check() (err error) {
 	if args.TargetTX == nil {
 		return utils.WrapError("Args_Check", ErrNilSourceTx)
 	}
+
+	// 仲裁结果码不检查了，在交易检查端检查
 
 	// 参数有效
 	return nil

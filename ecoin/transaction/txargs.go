@@ -11,4 +11,5 @@ func NewArgs(typ uint8) Args {
 		args = &GeneralArgs{}
 
 	}
+	return args
 }
