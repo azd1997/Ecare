@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"github.com/azd1997/Ecare/ecoin/crypto"
 	"time"
 
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -13,13 +14,13 @@ import (
 
 // TxH2P 病人向医院发起的心电数据诊断，分人工和机器自动分析两种。阶段二
 type TxH2P struct {
-	Id          common.Hash      `json:"id"`
+	Id          crypto.Hash      `json:"id"`
 	Time        common.TimeStamp `json:"time"`
 	From        account.UserId   `json:"from"`
 	P2H         *TxP2H           `json:"p2h"`
 	Response    []byte           `json:"response"` // 比如说请求数据的密码
 	Description string           `json:"description"`
-	Sig         common.Signature `json:"sig"`
+	Sig         crypto.Signature `json:"sig"`
 }
 
 // newTxH2P 新建H2P转账交易(P2H交易二段)。
@@ -59,17 +60,17 @@ func (tx *TxH2P) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxH2P) ID() common.Hash {
+func (tx *TxH2P) ID() crypto.Hash {
 	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxH2P) Hash() (hash common.Hash, err error) {
+func (tx *TxH2P) Hash() (hash crypto.Hash, err error) {
 	txCopy := *tx
-	txCopy.Id, txCopy.Sig = common.Hash{}, common.Signature{}
+	txCopy.Id, txCopy.Sig = crypto.Hash{}, crypto.Signature{}
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return common.Hash{}, utils.WrapError("TxH2P_Hash", err)
+		return crypto.Hash{}, utils.WrapError("TxH2P_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil

@@ -2,29 +2,25 @@ package account
 
 import (
 	"bytes"
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/gob"
 	"encoding/json"
+	"github.com/azd1997/Ecare/ecoin/crypto"
 	"io/ioutil"
-	"math/big"
 	"os"
 
 	"github.com/mr-tron/base58"
 	"golang.org/x/crypto/ripemd160"
 
-	"github.com/azd1997/Ecare/ecoin/common"
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
 // Account 账户，包含私钥和公钥，标志唯一身份。UserID是外部可见的标志
 type Account struct {
-	PrivKey PrivKey `json:"privKey"`
-	PubKey  PubKey  `json:"pubKey"`
-	RoleNo  uint    `json:"roleNo"`
+	PrivKey crypto.PrivKey `json:"privKey"`
+	PubKey  crypto.PubKey  `json:"pubKey"`
+	RoleNo  uint           `json:"roleNo"`
 }
 
 // NewAccount 新建账户
@@ -109,35 +105,13 @@ func (a *Account) UserId() (UserId, error) {
 }
 
 // Sign 使用该账号对目标数据作签名。目标数据只能是基础类型、结构体、切片、表等，必须提前转为[]byte
-func (a *Account) Sign(target []byte) (sig common.Signature, err error) {
-	privateKey := a.PrivKey.PrivateKey(a.PubKey.PublicKey())
-	r, s, err := ecdsa.Sign(rand.Reader, &privateKey, target)
-	if err != nil {
-		return nil, utils.WrapError("Account_Sign", err)
-	}
-	sig = append(r.Bytes(), s.Bytes()...)
-	return
+func (a *Account) Sign(target []byte) (sig crypto.Signature, err error) {
+	return ACrypto.Sign(target, a.PrivKey, a.PubKey)
 }
 
 // VerifySign 验证签名; 这个pubKey不一定是本账户的PubKey
 func (a *Account) VerifySign(target []byte, sig []byte, pubKey []byte) bool {
-	// 从sig还原出r,s两个大数
-	sigLen := len(sig)
-	r, s := &big.Int{}, &big.Int{}
-	r, s = r.SetBytes(sig[:sigLen/2]), s.SetBytes(sig[sigLen/2:]) // 基于下标范围创建新切片的时候下标范围是半开区间 [start, end)
-
-	// 还原ecdsa.PublicKey
-	pubKeyLen := len(pubKey)
-	x, y := &big.Int{}, &big.Int{}
-	x, y = x.SetBytes(pubKey[:pubKeyLen/2]), y.SetBytes(pubKey[pubKeyLen/2:])
-	rawPubKey := &ecdsa.PublicKey{
-		Curve: elliptic.P256(),
-		X:     x,
-		Y:     y,
-	}
-
-	// 验证签名
-	return ecdsa.Verify(rawPubKey, target, r, s)
+	return ACrypto.VerifySign(target, sig, pubKey)
 }
 
 // NewTX 该账户作为主体，构造新交易
@@ -218,18 +192,8 @@ func (a *Account) LoadFileWithJsonDecode(file string) (err error) {
 /*******************************************************实现接口*********************************************************/
 
 // newKeyPair 创造新的公私钥对
-func newKeyPair() (PrivKey, PubKey, error) {
-	// 椭圆曲线
-	curve := elliptic.P256()
-	// 生成私钥
-	privateKey, err := ecdsa.GenerateKey(curve, rand.Reader)
-	if err != nil {
-		return nil, nil, utils.WrapError("newKeyPair", err)
-	}
-	pubKey := append(privateKey.PublicKey.X.Bytes(), privateKey.PublicKey.Y.Bytes()...)
-	privKey := privateKey.D.Bytes()
-
-	return privKey, pubKey, nil
+func newKeyPair() (crypto.PrivKey, crypto.PubKey, error) {
+	return ACrypto.GenerateKeyPair()
 }
 
 // pubKeyHash publicKey -> sha256 -> publicKeyHash -> ripemd160 -> publicKeyHashRipemd160

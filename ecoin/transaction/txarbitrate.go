@@ -6,13 +6,14 @@ import (
 	"encoding/gob"
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/common"
+	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/utils"
 	"time"
 )
 
 // 仲裁交易，针对商业性质交易如TxR2P的“三次僵持”提出的交易体
 type TxArbitrate struct {
-	Id   common.Hash      `json:"id"`
+	Id   crypto.Hash      `json:"id"`
 	Time common.TimeStamp `json:"time"`
 	// TargetTx 仲裁目标
 	TargetTX CommercialTX `json:"targetTX"`
@@ -35,7 +36,7 @@ type TxArbitrate struct {
 
 	// Arbitrator 仲裁者
 	Arbitrator account.UserId   `json:"arbitrator"`
-	Sig        common.Signature `json:"sig"`
+	Sig        crypto.Signature `json:"sig"`
 }
 
 // newTxArbitrate 新建仲裁交易。
@@ -75,17 +76,17 @@ func (tx *TxArbitrate) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxArbitrate) ID() common.Hash {
+func (tx *TxArbitrate) ID() crypto.Hash {
 	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxArbitrate) Hash() (hash common.Hash, err error) {
+func (tx *TxArbitrate) Hash() (hash crypto.Hash, err error) {
 	txCopy := *tx
-	txCopy.Id, txCopy.Sig = common.Hash{}, common.Signature{}
+	txCopy.Id, txCopy.Sig = crypto.Hash{}, crypto.Signature{}
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return common.Hash{}, utils.WrapError("TxArbitrate_Hash", err)
+		return crypto.Hash{}, utils.WrapError("TxArbitrate_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil

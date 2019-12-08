@@ -2,7 +2,7 @@ package account
 
 import (
 	"fmt"
-	"github.com/azd1997/Ecare/ecoin/common"
+	"github.com/azd1997/Ecare/ecoin/crypto"
 	"testing"
 )
 
@@ -27,12 +27,9 @@ func TestAccount_UserID(t *testing.T) {
 	}
 	fmt.Printf("%s\n", userid.String())
 
-	valid, err := userid.IsValid()
+	err = userid.IsValid(All, 0)
 	if err != nil {
 		t.Error(err)
-	}
-	if !valid {
-		t.Error("userid is invalid")
 	}
 	fmt.Println("userid is valid")
 }
@@ -44,7 +41,7 @@ func TestAccount_Sign(t *testing.T) {
 	}
 	fmt.Printf("%s\n", acc)
 
-	targetForSign := common.RandomHash()
+	targetForSign := crypto.RandomHash()
 	fmt.Printf("Hash: %s\n", targetForSign)
 
 	sig, err := acc.Sign(targetForSign[:])

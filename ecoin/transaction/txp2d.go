@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"github.com/azd1997/Ecare/ecoin/crypto"
 	"time"
 
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -16,14 +17,14 @@ import (
 // TxP2D 病人向下班医生发起的心电诊断交易，阶段一		TODO: 暂时只支持找指定医生诊断；后边考虑广播交易等待医生解决
 type TxP2D struct {
 
-	Id             common.Hash        `json:"id"`
+	Id             crypto.Hash        `json:"id"`
 	Time           common.TimeStamp   `json:"time"`
 	From           account.UserId     `json:"from"`
 	To             account.UserId     `json:"to"`
 	Amount         common.Coin        `json:"amount"`
 	PurchaseTarget storage.TargetData `json:"purchaseTarget"`
 	Description    string             `json:"description"`
-	Sig            common.Signature   `json:"sig"`
+	Sig            crypto.Signature   `json:"sig"`
 }
 
 // newTxP2D 新建P2D转账交易。
@@ -65,17 +66,17 @@ func (tx *TxP2D) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxP2D) ID() common.Hash {
+func (tx *TxP2D) ID() crypto.Hash {
 	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxP2D) Hash() (hash common.Hash, err error) {
+func (tx *TxP2D) Hash() (hash crypto.Hash, err error) {
 	txCopy := *tx
-	txCopy.Id, txCopy.Sig = common.Hash{}, common.Signature{}
+	txCopy.Id, txCopy.Sig = crypto.Hash{}, crypto.Signature{}
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return common.Hash{}, utils.WrapError("TxP2D_Hash", err)
+		return crypto.Hash{}, utils.WrapError("TxP2D_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil

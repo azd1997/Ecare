@@ -1,7 +1,7 @@
 package tx
 
 import (
-	"github.com/azd1997/Ecare/ecoin/common"
+	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/storage"
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
@@ -15,10 +15,10 @@ type TX interface {
 	String() string
 	Serialize() (result []byte, err error)
 	Deserialize(data []byte) (err error)
-	Hash() (id common.Hash, err error)
+	Hash() (id crypto.Hash, err error)
 	IsValid() (err error)
 	TypeNo() uint
-	ID() common.Hash
+	ID() crypto.Hash
 	//Response() *Response
 }
 

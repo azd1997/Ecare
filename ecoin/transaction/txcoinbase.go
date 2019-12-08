@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/utils"
 	"time"
 
@@ -15,7 +16,7 @@ import (
 // 由于coinbase交易没有转账者，且必须由出块者构建，所以不设置签名项划定归属。
 type TxCoinbase struct {
 //	TxBase
-	Id          common.Hash      `json:"id"`
+	Id          crypto.Hash      `json:"id"`
 	Time        common.TimeStamp `json:"time"`
 	To          account.UserId   `json:"to"`
 	Amount      common.Coin      `json:"amount"`
@@ -45,17 +46,17 @@ func (tx *TxCoinbase) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxCoinbase) ID() common.Hash {
+func (tx *TxCoinbase) ID() crypto.Hash {
 	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxCoinbase) Hash() (hash common.Hash, err error) {
+func (tx *TxCoinbase) Hash() (hash crypto.Hash, err error) {
 	txCopy := *tx
-	txCopy.Id = common.Hash{}
+	txCopy.Id = crypto.Hash{}
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return common.Hash{}, utils.WrapError("TxCoinbase_Hash", err)
+		return crypto.Hash{}, utils.WrapError("TxCoinbase_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil
