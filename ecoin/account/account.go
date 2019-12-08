@@ -106,7 +106,7 @@ func (a *Account) UserId() (UserId, error) {
 
 // Sign 使用该账号对目标数据作签名。目标数据只能是基础类型、结构体、切片、表等，必须提前转为[]byte
 func (a *Account) Sign(target []byte) (sig crypto.Signature, err error) {
-	return ACrypto.Sign(target, a.PrivKey, a.PubKey)
+	return ACrypto.Sign(target, a.PrivKey)
 }
 
 // VerifySign 验证签名; 这个pubKey不一定是本账户的PubKey
