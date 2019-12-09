@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -15,7 +15,7 @@ type ArbitrateArgs struct {
 }
 
 // Check 检查参数值是否合规
-func (args *ArbitrateArgs) Check() (err error) {
+func (args *ArbitrateArgs) Check(argsFunc CheckArgsFunc) (err error) {
 
 	// 检查Arbitrator
 	arbitrator, err := args.ArbitratorAccount.UserId()
@@ -32,6 +32,12 @@ func (args *ArbitrateArgs) Check() (err error) {
 	}
 
 	// 仲裁结果码不检查了，在交易检查端检查
+
+
+	// 根据传入的函数检查
+	if err = argsFunc(args); err != nil {
+		return utils.WrapError("Args_Check", err)
+	}
 
 	// 参数有效
 	return nil

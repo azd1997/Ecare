@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"bytes"
@@ -87,7 +87,7 @@ func (tx *TxCoinbase) Deserialize(data []byte) (err error) {
 }
 
 // IsValid 验证交易是否合乎规则
-func (tx *TxCoinbase) IsValid() (err error) {
+func (tx *TxCoinbase) IsValid(txFunc ValidateTxFunc) (err error) {
 
 	// 要记住检验交易有两种情况下被调用：一是加入未打包交易池之前要检查交易（情况A）；二是收到区块后要检查区块内交易（情况B）。
 
@@ -111,6 +111,12 @@ func (tx *TxCoinbase) IsValid() (err error) {
 	// TODO： Coinbase还有一个检查点：其由出块节点构造，但在验证过程中必须检查是不是填了出块节点账户。因此在出块节点检查区块时需要有一个区块的检查方法
 	// 而这个方法检查所有交易有效性，并对coinbase（在打包交易时始终放在交易列表第一位）再增加这一个处理。
 	// 如果要在这里做这个检查，就必须穿入一个*Block作参数。但是其他类型交易不需要这个参数，会破坏整体接口的实现。
+
+
+	// 其他的检查交给传入的检查方法去做
+	if err = txFunc(tx); err != nil {
+		return utils.WrapError("TxCoinbase_IsValid", err)
+	}
 
 	return nil
 }

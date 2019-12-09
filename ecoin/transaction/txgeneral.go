@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"bytes"
@@ -103,7 +103,7 @@ func (tx *TxGeneral) Deserialize(data []byte) (err error) {
 
 // IsValid 验证交易是否合乎规则。注意这里和Args.Check做的事是一样的，只不过调用方不同
 // 这个方法提供给检查交易方调用，而args.Check由制造交易者调用
-func (tx *TxGeneral) IsValid() (err error) {
+func (tx *TxGeneral) IsValid(txFunc ValidateTxFunc) (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
@@ -125,6 +125,12 @@ func (tx *TxGeneral) IsValid() (err error) {
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
 		return utils.WrapError("TxGeneral_IsValid", ErrWrongTxId)
+	}
+
+
+	// 其他的检查交给传入的检查方法去做
+	if err = txFunc(tx); err != nil {
+		return utils.WrapError("TxGeneral_IsValid", err)
 	}
 
 	return nil

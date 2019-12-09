@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"bytes"
@@ -101,7 +101,7 @@ func (tx *TxP2R) Deserialize(p2rBytes []byte) (err error) {
 }
 
 // IsValid 验证交易是否合乎规则
-func (tx *TxP2R) IsValid() (err error) {
+func (tx *TxP2R) IsValid(txFunc ValidateTxFunc) (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
@@ -129,6 +129,12 @@ func (tx *TxP2R) IsValid() (err error) {
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
 		return utils.WrapError("TxP2R_IsValid", ErrWrongTxId)
+	}
+
+
+	// 其他的检查交给传入的检查方法去做
+	if err = txFunc(tx); err != nil {
+		return utils.WrapError("TxP2R_IsValid", err)
 	}
 
 	return nil

@@ -1,6 +1,7 @@
-package tx
+package transaction
 
 import (
+	"errors"
 	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/storage"
 	"github.com/azd1997/Ecare/ecoin/utils"
@@ -16,7 +17,11 @@ type TX interface {
 	Serialize() (result []byte, err error)
 	Deserialize(data []byte) (err error)
 	Hash() (id crypto.Hash, err error)
-	IsValid() (err error)
+
+	// 函数是个很特殊的存在，只要签名匹配，即可以传入函数，也可以传入方法（裹挟着方法接收者的信息）
+	// 这有利于包的独立性
+	IsValid(ValidateTxFunc) (err error)
+
 	TypeNo() uint
 	ID() crypto.Hash
 	//Response() *Response
@@ -25,11 +30,11 @@ type TX interface {
 // Args 新建交易时传入的参数结构体的接口。这样子做可以省掉上一版本中ParseArgs的步骤
 type Args interface {
 	// Check 只对Args的格式规范进行约束，像余额等等需要进行查询EAccounts或是Chain的检查移交给上层去做
-	Check() (err error)
+	Check(CheckArgsFunc) (err error)
 }
 
 // NewTXWithArgsCheck 新建一个交易，传入交易类型与其他参数，构建具体的交易。
-func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
+func NewTXWithArgsCheck(typ uint, args Args, argsFunc CheckArgsFunc) (TX, error) {
 	switch typ {
 	case TX_COINBASE:
 		// 1. 检查参数
@@ -37,7 +42,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -48,7 +53,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -59,7 +64,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -70,7 +75,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -81,7 +86,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -92,7 +97,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -103,7 +108,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -114,7 +119,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -125,7 +130,7 @@ func NewTXWithArgsCheck(typ uint, args Args) (TX, error) {
 		if !ok {
 			return nil, ErrWrongArgs
 		}
-		if err := args.Check(); err != nil {
+		if err := args.Check(argsFunc); err != nil {
 			return nil, err
 		}
 		// 2. 新建交易
@@ -344,3 +349,19 @@ type Response interface {
 // 比如说这里的交易类都实现了交易接口，将交易接口独立放置在一个包，然后本包引用接口包和gsm包，gsm包引用接口包
 // 这里不选择接口解耦方式，而是将所有需要到全局结构体进行查询的校验内容工作交给上方去做
 // 就像account包一样，所有包只做自己能做的事，把需要协作的工作交给上一层处理
+
+
+type ValidateTxFunc func(tx TX) error
+
+type CheckArgsFunc func(args Args) error
+
+type GSM struct {
+	m map[string]bool
+}
+
+func (g GSM) Validate(tx TX) error {
+	if g.m[tx.ID().String()] {
+		return nil
+	}
+	return errors.New("err")
+}

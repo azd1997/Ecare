@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"bytes"
@@ -119,7 +119,7 @@ func (tx *TxArbitrate) Deserialize(txAtbitrateBytes []byte) (err error) {
 }
 
 // IsValid 验证交易是否合乎规则
-func (tx *TxArbitrate) IsValid() (err error) {
+func (tx *TxArbitrate) IsValid(txFunc ValidateTxFunc) (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
@@ -145,6 +145,12 @@ func (tx *TxArbitrate) IsValid() (err error) {
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
 		return utils.WrapError("TxArbitrate_IsValid", ErrWrongTxId)
+	}
+
+
+	// 其他的检查交给传入的检查方法去做
+	if err = txFunc(tx); err != nil {
+		return utils.WrapError("TxArbitrate_IsValid", err)
 	}
 
 	return nil

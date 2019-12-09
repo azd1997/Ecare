@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/storage"

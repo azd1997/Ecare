@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -15,7 +15,7 @@ type D2PArgs struct {
 }
 
 // Check 检查参数值是否合规
-func (args *D2PArgs) Check() (err error) {
+func (args *D2PArgs) Check(argsFunc CheckArgsFunc) (err error) {
 
 	// 检查From
 	if err = args.From.IsValid(account.Single, account.Patient); err != nil {
@@ -40,6 +40,10 @@ func (args *D2PArgs) Check() (err error) {
 		return utils.WrapError("Args_Check", ErrUnmatchedSender)
 	}
 
+	// 根据传入的函数检查
+	if err = argsFunc(args); err != nil {
+		return utils.WrapError("Args_Check", err)
+	}
 
 	// 参数有效
 	return nil

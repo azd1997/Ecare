@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"fmt"
@@ -121,4 +121,14 @@ func TestNewTxD2P(t *testing.T) {
 		t.Error(err)
 	}
 	fmt.Printf("tx1: %s\n", tx1)
+}
+
+
+func TestValidateFunc(t *testing.T) {
+	g := &GSM{}
+
+	tx := new(TxBase)
+	if err := tx.IsValid(g.Validate); err != nil {
+
+	}
 }

@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 const (
 	ECG_DIAG_AUTO   = 1

@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -20,7 +20,7 @@ type P2HArgs struct {
 }
 
 // CheckArgsValue 检查参数值是否合规
-func (args *P2HArgs) Check() (err error) {
+func (args *P2HArgs) Check(argsFunc CheckArgsFunc) (err error) {
 	// 检查from? 不需要，因为就是往上给account调用的
 
 	// 检查FromID
@@ -48,6 +48,11 @@ func (args *P2HArgs) Check() (err error) {
 	// 检查 purchaseType
 	if args.PurchaseType != ECG_DIAG_AUTO && args.PurchaseType != ECG_DIAG_DOCTOR {
 		return ErrUnknownPurchaseType
+	}
+
+	// 根据传入的函数检查
+	if err = argsFunc(args); err != nil {
+		return utils.WrapError("Args_Check", err)
 	}
 
 	// 参数有效

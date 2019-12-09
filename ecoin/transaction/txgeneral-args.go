@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -17,7 +17,7 @@ type GeneralArgs struct {
 }
 
 // Check 检查参数值是否合规
-func (args *GeneralArgs) Check() (err error) {
+func (args *GeneralArgs) Check(argsFunc CheckArgsFunc) (err error) {
 	// 检查from? 不需要，因为就是往上给account调用的
 
 	// 检查FromId
@@ -35,6 +35,11 @@ func (args *GeneralArgs) Check() (err error) {
 
 	// 检查 to 的有效性
 	if err = args.To.IsValid(account.All, 0); err != nil {
+		return utils.WrapError("Args_Check", err)
+	}
+
+	// 根据传入的函数检查
+	if err = argsFunc(args); err != nil {
 		return utils.WrapError("Args_Check", err)
 	}
 

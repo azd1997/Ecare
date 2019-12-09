@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -16,7 +16,7 @@ type P2RArgs struct {
 }
 
 // Check 检查参数值是否合规
-func (args *P2RArgs) Check() (err error) {
+func (args *P2RArgs) Check(argsFunc CheckArgsFunc) (err error) {
 
 	// 检查FromID
 	fromID, err := args.FromAccount.UserId()
@@ -39,6 +39,11 @@ func (args *P2RArgs) Check() (err error) {
 	if fromID != args.R2P.To {
 		return utils.WrapError("Args_Check", ErrUnmatchedSender)
 
+	}
+
+	// 根据传入的函数检查
+	if err = argsFunc(args); err != nil {
+		return utils.WrapError("Args_Check", err)
 	}
 
 	// 参数有效

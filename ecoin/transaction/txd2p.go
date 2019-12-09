@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"bytes"
@@ -101,7 +101,7 @@ func (tx *TxD2P) Deserialize(d2pBytes []byte) (err error) {
 }
 
 // IsValid 验证交易是否合乎规则
-func (tx *TxD2P) IsValid() (err error) {
+func (tx *TxD2P) IsValid(txFunc ValidateTxFunc) (err error) {
 
 	// 检查交易时间有效性
 	if tx.Time >= common.TimeStamp(time.Now().Unix()) {
@@ -127,6 +127,12 @@ func (tx *TxD2P) IsValid() (err error) {
 	txHash, _ := tx.Hash()
 	if string(txHash) != string(tx.Id) {
 		return utils.WrapError("TxD2P_IsValid", ErrWrongTxId)
+	}
+
+
+	// 其他的检查交给传入的检查方法去做
+	if err = txFunc(tx); err != nil {
+		return utils.WrapError("TxD2P_IsValid", err)
 	}
 
 	return nil

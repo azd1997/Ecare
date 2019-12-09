@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -19,7 +19,7 @@ type P2DArgs struct {
 }
 
 // Check 检查参数值是否合规
-func (args *P2DArgs) Check() (err error) {
+func (args *P2DArgs) Check(argsFunc CheckArgsFunc) (err error) {
 	// 检查from? 不需要，因为就是往上给account调用的
 
 	// 检查FromID
@@ -42,6 +42,11 @@ func (args *P2DArgs) Check() (err error) {
 
 	// 检查 purchaseTarget是否有效？
 	if err = args.PurchaseTarget.IsOk(); err != nil {
+		return utils.WrapError("Args_Check", err)
+	}
+
+	// 根据传入的函数检查
+	if err = argsFunc(args); err != nil {
 		return utils.WrapError("Args_Check", err)
 	}
 

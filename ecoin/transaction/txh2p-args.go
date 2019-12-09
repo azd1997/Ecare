@@ -1,4 +1,4 @@
-package tx
+package transaction
 
 import (
 	"github.com/azd1997/Ecare/ecoin/account"
@@ -15,7 +15,7 @@ type H2PArgs struct {
 }
 
 // CheckArgsValue 检查参数值是否合规
-func (args *H2PArgs) Check() (err error) {
+func (args *H2PArgs) Check(argsFunc CheckArgsFunc) (err error) {
 	// 检查from? 不需要，因为就是往上给account调用的
 
 	// 检查FromID
@@ -35,6 +35,11 @@ func (args *H2PArgs) Check() (err error) {
 	//
 	if args.From != fromID || args.From != args.P2H.To {
 		return utils.WrapError("Args_Check", ErrUnmatchedSender)
+	}
+
+	// 根据传入的函数检查
+	if err = argsFunc(args); err != nil {
+		return utils.WrapError("Args_Check", err)
 	}
 
 	// 参数有效
