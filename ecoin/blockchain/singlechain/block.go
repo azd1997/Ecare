@@ -3,17 +3,19 @@ package singlechain
 import (
 	"bytes"
 	"encoding/gob"
+	"time"
+
 	"github.com/azd1997/Ecare/ecoin/account"
+	bc "github.com/azd1997/Ecare/ecoin/blockchain"
 	"github.com/azd1997/Ecare/ecoin/common"
 	"github.com/azd1997/Ecare/ecoin/container"
 	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/transaction"
 	"github.com/azd1997/Ecare/ecoin/utils"
-	"time"
 )
 
-/ BLockHeader 区块头
+// BLockHeader 区块头
 type BlockHeader struct {
 	Id       uint // 从0开始，很多称为height
 	Time     common.TimeStamp
@@ -159,7 +161,8 @@ func (b *Block) PrintTransactions() {
 }
 
 // VerifyTXs 验证区块内所有交易。收到区块检查时调用
-func (b *Block) VerifyTXs(gsm *GlobalStateMachine) (txTypeNoArray [][]uint, err error) {
+// 这里真正传入的检查函数一定得是能够处理所有类型交易的检查函数，它将会定义在GSM中
+func (b *Block) VerifyTXs(txFunc transaction.ValidateTxFunc) (txTypeNoArray [][]uint, err error) {
 
 	// txTypeNoArray [][]uint指的是这个区块内所有交易各种类型的交易其在区块交易列表中的索引
 
@@ -183,13 +186,13 @@ func (b *Block) VerifyTXs(gsm *GlobalStateMachine) (txTypeNoArray [][]uint, err 
 		if tx, err = transaction.DeserializeTX(b.TxTypes[i], txBytes); err != nil {
 			return nil, err
 		}
-		if err = tx.IsValid(gsm); err != nil {
+		if err = tx.IsValid(txFunc); err != nil {
 			return nil, ErrBlockContainsInvalidTX
 		}
 		switch b.TxTypes[i] {
 		case transaction.TX_COINBASE:	// TX_COINBASE = 1
 			if b.CreateBy != tx.(*transaction.TxCoinbase).To {
-				return nil, ErrInvalidCoinbaseTX
+				return nil, transaction.ErrUnmatchedReceiver
 			}
 			txTypeNoArray[0] = append(txTypeNoArray[0], uint(i))
 		case transaction.TX_GENERAL:	// 2
@@ -209,11 +212,11 @@ func (b *Block) VerifyTXs(gsm *GlobalStateMachine) (txTypeNoArray [][]uint, err 
 		case transaction.TX_ARBITRATE:	// 9
 			// 仲裁交易还需要检查仲裁者是否是出块者
 			if b.CreateBy != tx.(*transaction.TxArbitrate).Arbitrator {
-				return nil, ErrInvalidArbitrateTX
+				return nil, transaction.ErrUnmatchedSender
 			}
 			txTypeNoArray[8] = append(txTypeNoArray[8], uint(i))
 		default:
-			return nil, ErrUnknownTransactionType
+			return nil, transaction.ErrUnknownTxType
 		}
 	}
 
@@ -222,7 +225,7 @@ func (b *Block) VerifyTXs(gsm *GlobalStateMachine) (txTypeNoArray [][]uint, err 
 }
 
 // IsValid 区块是否有效。这仅用于gsm.ledger不为空的情况，调用之前需要判断这个情况。
-func (b *Block) IsValid(gsm *GlobalStateMachine) (err error) {
+func (b *Block) IsValid(blockFunc bc.ValidateBlockFunc, txFunc transaction.ValidateTxFunc) (err error) {
 
 	/*&Block{
 		BlockHeader: BlockHeader{
@@ -241,22 +244,27 @@ func (b *Block) IsValid(gsm *GlobalStateMachine) (err error) {
 	// 检验区块的基本格式内容
 	// 1. 检查时间
 	if b.Time >= common.TimeStamp(time.Now().Unix()) {
-		return utils.WrapError("Block_IsValid", ErrWrongTimeBlock)
+		return utils.WrapError("Block_IsValid", ErrWrongTime)
 	}
 	// 2. 检查Id和PrevHash值
-	localLatestBlock, err := gsm.Ledger.GetBlockByHash(gsm.Ledger.LastHash)
-	if err != nil {
+	//localLatestBlock, err := gsm.Ledger.GetBlockByHash(gsm.Ledger.LastHash)
+	//if err != nil {
+	//	return utils.WrapError("Block_IsValid", err)
+	//}
+	//if string(b.PrevHash) != string(localLatestBlock.Hash) || b.Id != localLatestBlock.Id + 1 {
+	//	return utils.WrapError("Block_IsValid", ErrNotNextBlock)
+	//}
+	//// 3. 检查出块者权限
+	//if b.CreateBy.RoleNo >= 10 || !gsm.Accounts.Map[b.CreateBy.ID].Available() {
+	//	return utils.WrapError("Block_IsValid", ErrWrongRoleUserID)
+	//}
+
+	if err = blockFunc(b); err != nil {
 		return utils.WrapError("Block_IsValid", err)
 	}
-	if string(b.PrevHash) != string(localLatestBlock.Hash) || b.Id != localLatestBlock.Id + 1 {
-		return utils.WrapError("Block_IsValid", ErrNotNextBlock)
-	}
-	// 3. 检查出块者权限
-	if b.CreateBy.RoleNo >= 10 || !gsm.Accounts.Map[b.CreateBy.ID].Available() {
-		return utils.WrapError("Block_IsValid", ErrWrongRoleUserID)
-	}
+
 	// 4. 检查所有交易
-	if _, err = b.VerifyTXs(gsm); err != nil {
+	if _, err = b.VerifyTXs(txFunc); err != nil {
 		return utils.WrapError("Block_IsValid", ErrBlockContainsInvalidTX)
 	}
 	// 5. 检查区块哈希也就是交易默克树根哈希

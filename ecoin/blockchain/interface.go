@@ -10,3 +10,5 @@ type IChain interface {
 type IBlock interface {
 
 }
+
+type ValidateBlockFunc func(b IBlock) error
