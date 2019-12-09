@@ -3,3 +3,4 @@
 *.accounts
 *.account
 *.eaccounts
+/ecoin/database/tmp

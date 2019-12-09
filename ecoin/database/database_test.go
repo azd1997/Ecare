@@ -53,7 +53,7 @@ func writeAndGet(db Database, parallel int) {
 			keys := [][]byte{}
 			values := [][]byte{}
 			validations := []string{}
-			const loop = 100000
+			const loop = 100
 			for i := 0; i < loop; i++ {
 				key := prepareData(KEY_LEN).Data
 				keys = append(keys, key)
@@ -126,8 +126,12 @@ func batchWriteAndGet(db Database, parallel int) {
 func TestBadger(t *testing.T) {
 	badger, _ := OpenDatabase("badger", "tmp/badgerdb")
 	defer badger.Close()
+	fmt.Println("badger opened")
+
 
 	writeAndGet(badger, 1)
+	fmt.Println("1111")
+
 	batchWriteAndGet(badger, 1)
 
 	fmt.Println("parallel test")

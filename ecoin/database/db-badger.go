@@ -2,22 +2,19 @@ package database
 
 import (
 	"fmt"
-	"github.com/dgraph-io/badger"
-	"github.com/pkg/errors"
 	"log"
+	"os"
+	"path"
 	"sync/atomic"
 	"time"
 
-	//"github.com/dgraph-io/badger/options"
-	"os"
-	"path"
+	"github.com/dgraph-io/badger"
+	"github.com/pkg/errors"
 )
 
-
 type badgerDb struct {
-	db  *badger.DB
+	db *badger.DB
 }
-
 
 // 设置Badger选项
 /*var badgerOptions = badger.Options{
@@ -76,7 +73,6 @@ func (bd *badgerDb) Size() (int64, int64) {
 	return bd.db.Size()
 }
 
-
 /*↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓实现Database接口↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓*/
 
 //Set 为单个写操作开一个事务
@@ -109,12 +105,11 @@ func (bd *badgerDb) BatchSet(keys, values [][]byte) error {
 	return err
 }
 
-
 //Set 为单个写操作开一个事务
 func (bd *badgerDb) SetWithTTL(k, v []byte, expireAt int64) error {
 
 	err := bd.db.Update(func(txn *badger.Txn) error { //db.Update相当于打开了一个读写事务:db.NewTransaction(true)。用db.Update的好处在于不用显式调用Txn.Commit()了
-		duration := time.Duration(expireAt-time.Now().Unix()) * time.Second		// duration是数据存活时长
+		duration := time.Duration(expireAt-time.Now().Unix()) * time.Second // duration是数据存活时长
 		e := badger.NewEntry(k, v).WithTTL(duration)
 		return txn.SetEntry(e)
 	})
@@ -181,7 +176,7 @@ func (bd *badgerDb) BatchGet(keys [][]byte) ([][]byte, error) {
 				return nil
 			})
 		} else { //读取失败
-			values[i] = []byte{} //读取失败就把value设为空数组
+			values[i] = []byte{}              //读取失败就把value设为空数组
 			if err != badger.ErrKeyNotFound { //如果真的发生异常，则开一个新事务继续读后面的key
 				txn.Discard()
 				txn = bd.db.NewTransaction(false)
@@ -289,6 +284,5 @@ func (bd *badgerDb) Close() error {
 
 	return bd.db.Close()
 }
-
 
 /*↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑实现Database接口↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑*/
