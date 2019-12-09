@@ -355,13 +355,3 @@ type ValidateTxFunc func(tx TX) error
 
 type CheckArgsFunc func(args Args) error
 
-type GSM struct {
-	m map[string]bool
-}
-
-func (g GSM) Validate(tx TX) error {
-	if g.m[tx.ID().String()] {
-		return nil
-	}
-	return errors.New("err")
-}

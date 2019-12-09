@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -38,7 +39,10 @@ func TestNewTxGeneral(t *testing.T) {
 	}
 
 	// 生成交易
-	tx, err := NewTXWithArgsCheck(TX_GENERAL, args) // new过程已测试Hash/Sign方法
+	tx, err := NewTXWithArgsCheck(TX_GENERAL, args, func(args Args) error {
+		return nil	
+	}) 
+	// new过程已测试Hash/Sign方法
 	if err != nil {
 		t.Error(err)
 	}
@@ -71,7 +75,11 @@ func TestNewTxArbitrate(t *testing.T) {
 	}
 
 	// 生成交易
-	tx, err := NewTXWithArgsCheck(TX_ARBITRATE, args) // new过程已测试Hash方法
+	tx, err := NewTXWithArgsCheck(TX_ARBITRATE, args, func(args Args) error {
+		return nil
+	}) 
+	
+	// new过程已测试Hash方法
 	if err != nil {
 		t.Error(err)
 	}
@@ -123,9 +131,28 @@ func TestNewTxD2P(t *testing.T) {
 	fmt.Printf("tx1: %s\n", tx1)
 }
 
+//-------------------------------------------------------
+
+type testGSM struct {
+	m map[string]bool
+}
+
+func (g testGSM) Validate(tx TX) error {
+	if g.m[tx.ID().String()] {
+		return nil
+	}
+	return errors.New("err")
+}
+
+func (g testGSM) CheckArgs(tx TX) error {
+	if g.m[tx.ID().String()] {
+		return nil
+	}
+	return errors.New("err")
+}
 
 func TestValidateFunc(t *testing.T) {
-	g := &GSM{}
+	g := &testGSM{}
 
 	tx := new(TxBase)
 	if err := tx.IsValid(g.Validate); err != nil {
