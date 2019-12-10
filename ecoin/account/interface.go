@@ -1,7 +1,7 @@
 package account
 
 import (
-	"github.com/azd1997/Ecare/ecoin/crypto"
+	"github.com/azd1997/ego/ecrypto"
 )
 
 // IAccount 账户接口
@@ -16,7 +16,7 @@ type IAccount interface {
 	/*签名与验证*/
 
 	// Sign 签名
-	Sign(target []byte) (crypto.Signature, error)
+	Sign(target []byte) (ecrypto.Signature, error)
 
 	// VerifySign 验证签名
 	VerifySign(target []byte, sig []byte, pubKey []byte) bool

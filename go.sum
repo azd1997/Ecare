@@ -6,6 +6,10 @@ github.com/azd1997/ego v0.0.0-20191210084342-c52fe2099548 h1:3O1ubUrNkxS7qmioYWE
 github.com/azd1997/ego v0.0.0-20191210084342-c52fe2099548/go.mod h1:muPrpQs3Zn37xWOtGKmMmxn9MMnb2NzH/CpGeUfhDyk=
 github.com/azd1997/ego v0.0.0-20191210085739-4c62d9e4f7b5 h1:ieq0Vri7bqyNksmtxvXeio0Hd9mt7S5uLkj9B9vR/uw=
 github.com/azd1997/ego v0.0.0-20191210085739-4c62d9e4f7b5/go.mod h1:muPrpQs3Zn37xWOtGKmMmxn9MMnb2NzH/CpGeUfhDyk=
+github.com/azd1997/ego v0.0.0-20191210134108-e1abe9458a5b h1:IKV8wZnq86AvOd5HQJbxlUP/1XUofQkVDd0dGCLVr7w=
+github.com/azd1997/ego v0.0.0-20191210134108-e1abe9458a5b/go.mod h1:muPrpQs3Zn37xWOtGKmMmxn9MMnb2NzH/CpGeUfhDyk=
+github.com/azd1997/ego v0.0.0-20191210140022-55e1b1f2ffb2 h1:bdSutEBjNqfIKhKRJ21dlF2xTzjmxNFGHmJO87f2beQ=
+github.com/azd1997/ego v0.0.0-20191210140022-55e1b1f2ffb2/go.mod h1:wLyW3hBokTNuYFN8RVjQpLNJeslq5fb6Vldz3VTAUO4=
 github.com/azd1997/zinx v0.0.0-20191204020044-5cc0026730b6/go.mod h1:goqwQYhBLjuGYhs3S+IDjrKmPoO5Qz3Bm8/r7N8rRBg=
 github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 h1:kHaBemcxl8o/pQ5VM1c8PVE1PubbNx3mjUr09OqWGCs=
 github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575/go.mod h1:9d6lWj8KzO/fd/NrVaLscBKmPigpZpn5YawRPw+e3Yo=

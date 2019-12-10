@@ -1,9 +1,10 @@
 package eaccount
 
 import (
+	"github.com/azd1997/ego/ecrypto"
+
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/common"
-	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
 
@@ -15,7 +16,7 @@ import (
 // 这里不存储UCTXP等信息
 type EAccount struct {
 	UserId         account.UserId `json:"userId"`
-	PubKeyField    crypto.PubKey  `json:"pubKey"`
+	PubKeyField    ecrypto.PubKey  `json:"pubKey"`
 	BalanceCoin    common.Coin    `json:"balance"`
 	FrozenCoin     common.Coin    `json:"frozenCoin"`
 	RoleField      common.Role    `json:"role"` // 存储角色信息，和UserID中都存了一次RoleNo。必须保证相同

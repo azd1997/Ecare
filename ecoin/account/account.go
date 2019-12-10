@@ -5,12 +5,13 @@ import (
 	"crypto/sha256"
 	"encoding/gob"
 	"encoding/json"
-	"github.com/azd1997/Ecare/ecoin/crypto"
 	"io/ioutil"
 	"os"
 
 	"github.com/mr-tron/base58"
 	"golang.org/x/crypto/ripemd160"
+
+	"github.com/azd1997/ego/ecrypto"
 
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/utils"
@@ -18,8 +19,8 @@ import (
 
 // Account 账户，包含私钥和公钥，标志唯一身份。UserID是外部可见的标志
 type Account struct {
-	PrivKey crypto.PrivKey `json:"privKey"`
-	PubKey  crypto.PubKey  `json:"pubKey"`
+	PrivKey ecrypto.PrivKey `json:"privKey"`
+	PubKey  ecrypto.PubKey  `json:"pubKey"`
 	RoleNo  uint           `json:"roleNo"`
 }
 
@@ -105,7 +106,7 @@ func (a *Account) UserId() (UserId, error) {
 }
 
 // Sign 使用该账号对目标数据作签名。目标数据只能是基础类型、结构体、切片、表等，必须提前转为[]byte
-func (a *Account) Sign(target []byte) (sig crypto.Signature, err error) {
+func (a *Account) Sign(target []byte) (sig ecrypto.Signature, err error) {
 	return ACrypto.Sign(target, a.PrivKey)
 }
 
@@ -192,7 +193,7 @@ func (a *Account) LoadFileWithJsonDecode(file string) (err error) {
 /*******************************************************实现接口*********************************************************/
 
 // newKeyPair 创造新的公私钥对
-func newKeyPair() (crypto.PrivKey, crypto.PubKey, error) {
+func newKeyPair() (ecrypto.PrivKey, ecrypto.PubKey, error) {
 	return ACrypto.GenerateKeyPair()
 }
 

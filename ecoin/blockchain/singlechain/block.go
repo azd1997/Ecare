@@ -6,11 +6,11 @@ import (
 	"time"
 
 	"github.com/azd1997/ego/econtainer"
+	"github.com/azd1997/ego/ecrypto"
 
 	"github.com/azd1997/Ecare/ecoin/account"
 	bc "github.com/azd1997/Ecare/ecoin/blockchain"
 	"github.com/azd1997/Ecare/ecoin/common"
-	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/transaction"
 	"github.com/azd1997/Ecare/ecoin/utils"
@@ -20,9 +20,9 @@ import (
 type BlockHeader struct {
 	Id         uint // 从0开始，很多称为height
 	Time       common.TimeStamp
-	PrevHash   crypto.Hash
-	Hash       crypto.Hash // 当前区块哈希，实际是区块体内交易列表组成的MerkleTree的根哈希
-	MerkleRoot crypto.Hash
+	PrevHash   ecrypto.Hash
+	Hash       ecrypto.Hash // 当前区块哈希，实际是区块体内交易列表组成的MerkleTree的根哈希
+	MerkleRoot ecrypto.Hash
 	CreateBy   account.UserId // 由哪个账户创建
 }
 
@@ -71,7 +71,7 @@ func (b *Block) String() string {
 }
 
 // NewBlock 新建区块。在这里传入的txs是全部交易列表，包括自己的coinbase交易
-func NewBlock(txs []transaction.TX, prevHash crypto.Hash, blcokId uint, createBy account.UserId) *Block {
+func NewBlock(txs []transaction.TX, prevHash ecrypto.Hash, blcokId uint, createBy account.UserId) *Block {
 	l := len(txs)
 	var txsBytes = make([][]byte, l)
 	var txTypes = make([]uint, l)
@@ -118,7 +118,7 @@ func GenesisBlock(coinbase *transaction.TxCoinbase) (gb *Block, err error) {
 		BlockHeader: BlockHeader{
 			Id:       0,
 			Time:     common.TimeStamp(time.Now().Unix()),
-			PrevHash: crypto.ZeroHASH,
+			PrevHash: ecrypto.ZeroHASH,
 			Hash:     merkle.RootNode.Data,
 			CreateBy: coinbase.To,
 		},

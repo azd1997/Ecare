@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
-	"github.com/azd1997/Ecare/ecoin/crypto"
 	"time"
+
+	"github.com/azd1997/ego/ecrypto"
 
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/common"
@@ -15,11 +16,11 @@ import (
 
 // TxR2P 第三方研究机构向病人发起的数据交易的阶段一交易
 type TxR2P struct {
-	Id   crypto.Hash      `json:"id"`
+	Id   ecrypto.Hash      `json:"id"`
 	Time common.TimeStamp `json:"time"`
 	From account.UserId   `json:"from"`
 	To   account.UserId   `json:"to"` // 为了避免复杂，后续只能是原来的To否则无效
-	Sig  crypto.Signature `json:"sig"`
+	Sig  ecrypto.Signature `json:"sig"`
 
 	PurchaseTarget storage.TargetData `json:"purchaseTarget"` // 非第一次发时一般置空（表示目标不变），否则也可以进行更新
 	P2R            *TxP2R             `json:"p2r"`
@@ -75,17 +76,17 @@ func (tx *TxR2P) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxR2P) ID() crypto.Hash {
+func (tx *TxR2P) ID() ecrypto.Hash {
 	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxR2P) Hash() (hash crypto.Hash, err error) {
+func (tx *TxR2P) Hash() (hash ecrypto.Hash, err error) {
 	txCopy := *tx
-	txCopy.Id, txCopy.Sig = crypto.Hash{}, crypto.Signature{}
+	txCopy.Id, txCopy.Sig = ecrypto.Hash{}, ecrypto.Signature{}
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return crypto.Hash{}, utils.WrapError("TxGeneral_Hash", err)
+		return ecrypto.Hash{}, utils.WrapError("TxGeneral_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil

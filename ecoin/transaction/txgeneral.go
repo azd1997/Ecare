@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
-	"github.com/azd1997/Ecare/ecoin/crypto"
 	"time"
+
+	"github.com/azd1997/ego/ecrypto"
 
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/common"
@@ -15,12 +16,12 @@ import (
 // TxGeneral 通用交易， 一方转给另一方，无需确认
 type TxGeneral struct {
 //	TxBase
-	Id          crypto.Hash      `json:"id"`
+	Id          ecrypto.Hash      `json:"id"`
 	Time        common.TimeStamp `json:"time"`
 	From        account.UserId   `json:"from"`
 	To          account.UserId   `json:"to"`
 	Amount      common.Coin      `json:"amount"`
-	Sig         crypto.Signature `json:"sig"`
+	Sig         ecrypto.Signature `json:"sig"`
 	Description string           `json:"description"`
 }
 
@@ -62,17 +63,17 @@ func (tx *TxGeneral) TypeNo() uint {
 }
 
 // Id 对于已生成的交易，获取其ID
-func (tx *TxGeneral) ID() crypto.Hash {
+func (tx *TxGeneral) ID() ecrypto.Hash {
 	return tx.Id
 }
 
 // Hash 计算交易哈希值，作为交易ID
-func (tx *TxGeneral) Hash() (hash crypto.Hash, err error) {
+func (tx *TxGeneral) Hash() (hash ecrypto.Hash, err error) {
 	txCopy := *tx
-	txCopy.Id, txCopy.Sig = crypto.Hash{}, crypto.Signature{} // 置空值
+	txCopy.Id, txCopy.Sig = ecrypto.Hash{}, ecrypto.Signature{} // 置空值
 	var res []byte
 	if res, err = txCopy.Serialize(); err != nil {
-		return crypto.Hash{}, utils.WrapError("TxGeneral_Hash", err)
+		return ecrypto.Hash{}, utils.WrapError("TxGeneral_Hash", err)
 	}
 	hash1 := sha256.Sum256(res)
 	return hash1[:], nil

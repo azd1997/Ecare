@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/azd1997/ego/ecrypto"
+
 	"github.com/azd1997/Ecare/ecoin/account"
-	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/transaction"
 )
 
@@ -42,7 +43,7 @@ func TestBlock(t *testing.T) {
 	fmt.Printf("tx2: %s\n", tx2)
 
 	// 构造一个区块，尽管是不符合要求的区块
-	b := NewBlock([]transaction.TX{tx1, tx2}, crypto.ZeroHASH, 0, userid)
+	b := NewBlock([]transaction.TX{tx1, tx2}, ecrypto.ZeroHASH, 0, userid)
 	fmt.Printf("block: %s\n", b)
 
 	// 打印所有交易

@@ -1,13 +1,13 @@
 package singlechain
 
-import "C"
 import (
 	"encoding/base64"
 	"fmt"
 
+	"github.com/azd1997/ego/ecrypto"
+	"github.com/azd1997/ego/edatabase"
+
 	"github.com/azd1997/Ecare/ecoin/account"
-	"github.com/azd1997/Ecare/ecoin/crypto"
-	"github.com/azd1997/Ecare/ecoin/database"
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/transaction"
 	"github.com/azd1997/Ecare/ecoin/utils"
@@ -27,8 +27,8 @@ type ContinueChainArgs struct {
 
 // Chain 区块链
 type Chain struct {
-	LastHash crypto.Hash
-	Db       database.Database
+	LastHash ecrypto.Hash
+	Db       edatabase.Database
 }
 
 // TODO: 思考一下，newTxCoinbase时传入gsm，但要注意只用到了gsm.opts。也就是此时gsm.ledger是可以为空的
@@ -37,13 +37,13 @@ type Chain struct {
 func InitChain(args *InitChainArgs) (c *Chain, err error) {
 
 	// 确保数据库存在
-	if database.DbExists(DBEngine, args.DbPath) {
+	if edatabase.DbExists(DBEngine, args.DbPath) {
 		// 如果数据库已经存在，在上一级的调用函数中应该处理这个错误并退出软件runtime.Goexit()
 		return nil, utils.WrapError("InitChain", ErrChainAlreadyExists)
 	}
 
 	// 打开数据库
-	db, err := database.OpenDatabaseWithRetry(DBEngine, args.DbPath)
+	db, err := edatabase.OpenDatabaseWithRetry(DBEngine, args.DbPath)
 	if err != nil {
 		return nil, utils.WrapError("InitChain", err)
 	}
@@ -81,12 +81,12 @@ func InitChain(args *InitChainArgs) (c *Chain, err error) {
 func ContinueChain(args *ContinueChainArgs) (c *Chain, err error) {
 
 	// 检查数据库是否存在
-	if !database.DbExists(DBEngine, args.DbPath) {
+	if !edatabase.DbExists(DBEngine, args.DbPath) {
 		return nil, utils.WrapError("ContinueChain", ErrChainNotExists)
 	}
 
 	// 打开数据库
-	db, err := database.OpenDatabaseWithRetry(DBEngine, args.DbPath)
+	db, err := edatabase.OpenDatabaseWithRetry(DBEngine, args.DbPath)
 	if err != nil {
 		return nil, utils.WrapError("ContinueChain", err)
 	}
@@ -107,24 +107,24 @@ func ContinueChain(args *ContinueChainArgs) (c *Chain, err error) {
 func NewEmptyChain(dbPath string) (c *Chain, err error) {
 
 	// 检查路径是否已经有区块链数据库，谨防不小心清掉了原本的数据
-	if database.DbExists(DBEngine, dbPath) {
+	if edatabase.DbExists(DBEngine, dbPath) {
 		return nil, utils.WrapError("NewEmptyChain", ErrChainAlreadyExists)
 	}
 
 	// 打开数据库
-	db, err := database.OpenDatabaseWithRetry(DBEngine, dbPath)
+	db, err := edatabase.OpenDatabaseWithRetry(DBEngine, dbPath)
 	if err != nil {
 		return nil, utils.WrapError("NewEmptyChain", err)
 	}
 
 	// 更新“lh”键对应值为
 	// 存入lastHash
-	if err = db.Set(LastHashKey, crypto.ZeroHASH); err != nil {
+	if err = db.Set(LastHashKey, ecrypto.ZeroHASH); err != nil {
 		return nil, utils.WrapError("NewEmptyChain", err)
 	}
 
 	return &Chain{
-		LastHash: crypto.ZeroHASH,
+		LastHash: ecrypto.ZeroHASH,
 		Db:       db,
 	}, nil
 }
@@ -201,7 +201,7 @@ func (c *Chain) AddBlock(b *Block) (err error) {
 }
 
 // GetBlockByHash 根据区块哈希获取区块
-func (c *Chain) GetBlockByHash(blockHash crypto.Hash) (b *Block, err error) {
+func (c *Chain) GetBlockByHash(blockHash ecrypto.Hash) (b *Block, err error) {
 
 	blockBytes, err := c.Db.Get(blockHash)
 	if err != nil {
@@ -262,7 +262,7 @@ func (c *Chain) Iterator() *Iterator {
 }
 
 // GetBlockHashes 获取所有区块的哈希集合(从后到前)，用于快速比较两个节点间区块链的一致性
-func (c *Chain) GetBlockHashes() (blockHashes []crypto.Hash, err error) {
+func (c *Chain) GetBlockHashes() (blockHashes []ecrypto.Hash, err error) {
 	iter := c.Iterator()
 
 	var block *Block
@@ -272,7 +272,7 @@ func (c *Chain) GetBlockHashes() (blockHashes []crypto.Hash, err error) {
 			return nil, utils.WrapError("Chain_GetBlockHashes", err)
 		}
 		blockHashes = append(blockHashes, block.Hash)
-		if string(block.PrevHash) == string(crypto.ZeroHASH) {
+		if string(block.PrevHash) == string(ecrypto.ZeroHASH) {
 			break
 		}
 	}
@@ -305,7 +305,7 @@ func (c *Chain) PrintBlockHeaders(start, end uint) error {
 		if currentBlock, err = iter.Prev(); err != nil {
 			return utils.WrapError("Chain_PrintBlockHeaders", err)
 		}
-		if currentBlock.Id == end+1 || string(currentBlock.PrevHash) == string(crypto.ZeroHASH) {
+		if currentBlock.Id == end+1 || string(currentBlock.PrevHash) == string(ecrypto.ZeroHASH) {
 			break
 		}
 	}
@@ -345,11 +345,11 @@ func (c *Chain) GetMaxId() (maxId int, err error) {
 }
 
 // FindTransaction
-func (c *Chain) FindTransaction(txId crypto.Hash) (tx transaction.TX, err error) {
+func (c *Chain) FindTransaction(txId ecrypto.Hash) (tx transaction.TX, err error) {
 	iter := c.Iterator()
 
 	var block *Block
-	var txHash crypto.Hash
+	var txHash ecrypto.Hash
 	for {
 		if block, err = iter.Prev(); err != nil {
 			// 如果中间出错了，block可能就会空，后边就会空指针调用
@@ -368,7 +368,7 @@ func (c *Chain) FindTransaction(txId crypto.Hash) (tx transaction.TX, err error)
 				return tx, nil
 			}
 		}
-		if string(block.PrevHash) == string(crypto.ZeroHASH) {
+		if string(block.PrevHash) == string(ecrypto.ZeroHASH) {
 			break
 		}
 	}
@@ -377,8 +377,8 @@ func (c *Chain) FindTransaction(txId crypto.Hash) (tx transaction.TX, err error)
 
 // Iterator 区块迭代器
 type Iterator struct {
-	CurrentHash crypto.Hash
-	Db          database.Database
+	CurrentHash ecrypto.Hash
+	Db          edatabase.Database
 }
 
 // Prev 返回当前区块哈希对应的区块，并将哈希指针前移

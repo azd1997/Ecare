@@ -1,7 +1,8 @@
 package transaction
 
 import (
-	"github.com/azd1997/Ecare/ecoin/crypto"
+	"github.com/azd1997/ego/ecrypto"
+
 	"github.com/azd1997/Ecare/ecoin/storage"
 	"github.com/azd1997/Ecare/ecoin/utils"
 )
@@ -15,14 +16,14 @@ type TX interface {
 	String() string
 	Serialize() (result []byte, err error)
 	Deserialize(data []byte) (err error)
-	Hash() (id crypto.Hash, err error)
+	Hash() (id ecrypto.Hash, err error)
 
 	// 函数是个很特殊的存在，只要签名匹配，即可以传入函数，也可以传入方法（裹挟着方法接收者的信息）
 	// 这有利于包的独立性
 	IsValid(ValidateTxFunc) (err error)
 
 	TypeNo() uint
-	ID() crypto.Hash
+	ID() ecrypto.Hash
 	//Response() *Response
 }
 

@@ -2,8 +2,9 @@ package account
 
 import (
 	"fmt"
-	"github.com/azd1997/Ecare/ecoin/crypto"
 	"testing"
+
+	"github.com/azd1997/ego/ecrypto"
 )
 
 func TestNewAccount(t *testing.T) {
@@ -41,7 +42,7 @@ func TestAccount_Sign(t *testing.T) {
 	}
 	fmt.Printf("%s\n", acc)
 
-	targetForSign := crypto.RandomHash()
+	targetForSign := ecrypto.RandomHash()
 	fmt.Printf("Hash: %s\n", targetForSign)
 
 	sig, err := acc.Sign(targetForSign[:])
