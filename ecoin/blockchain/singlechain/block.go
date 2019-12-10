@@ -5,10 +5,11 @@ import (
 	"encoding/gob"
 	"time"
 
+	"github.com/azd1997/ego/econtainer"
+
 	"github.com/azd1997/Ecare/ecoin/account"
 	bc "github.com/azd1997/Ecare/ecoin/blockchain"
 	"github.com/azd1997/Ecare/ecoin/common"
-	"github.com/azd1997/Ecare/ecoin/container"
 	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/transaction"
@@ -85,7 +86,7 @@ func NewBlock(txs []transaction.TX, prevHash crypto.Hash, blcokId uint, createBy
 		txTypes[i] = tx.TypeNo()
 	}
 	// merkle.RootNode.Data 根哈希值是一个[]byte且长度为32。只是在其实现处不方便将其改为Hash类型，所以在这里要手动转一下
-	merkle := container.NewMerkleTree(txsBytes)
+	merkle := econtainer.NewMerkleTree(txsBytes)
 	// 注意，这里是确定根哈希是32位的才这么直接赋值过来，不要随便这么写，很容易出问题
 
 	return &Block{
@@ -111,7 +112,7 @@ func GenesisBlock(coinbase *transaction.TxCoinbase) (gb *Block, err error) {
 	if err != nil {
 		return nil, utils.WrapError("GenesisBlock", err)
 	}
-	merkle := container.NewMerkleTree([][]byte{coinbaseTxBytes})
+	merkle := econtainer.NewMerkleTree([][]byte{coinbaseTxBytes})
 
 	return &Block{
 		BlockHeader: BlockHeader{
@@ -277,7 +278,7 @@ func (b *Block) IsValid(blockFunc bc.ValidateBlockFunc, txFunc transaction.Valid
 	//	}
 	//	txsBytes = append(txsBytes, txBytes)
 	//}
-	merkle := container.NewMerkleTree(b.Transactions)
+	merkle := econtainer.NewMerkleTree(b.Transactions)
 	if string(merkle.RootNode.Data) != string(b.Hash) {
 		return utils.WrapError("Block_IsValid", ErrInconsistentMerkleRoot)
 	}

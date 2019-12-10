@@ -2,6 +2,11 @@ github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9 h1:HD8gA2tkBy
 github.com/AndreasBriese/bbloom v0.0.0-20190306092124-e2d15f34fcf9/go.mod h1:bOvUY6CB00SOBii9/FifXqc0awNKxLFCL/+pkDPuyl8=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=
+github.com/azd1997/ego v0.0.0-20191210084342-c52fe2099548 h1:3O1ubUrNkxS7qmioYWEXDP/IyL52kUH40k3oJy/jn0U=
+github.com/azd1997/ego v0.0.0-20191210084342-c52fe2099548/go.mod h1:muPrpQs3Zn37xWOtGKmMmxn9MMnb2NzH/CpGeUfhDyk=
+github.com/azd1997/ego v0.0.0-20191210085739-4c62d9e4f7b5 h1:ieq0Vri7bqyNksmtxvXeio0Hd9mt7S5uLkj9B9vR/uw=
+github.com/azd1997/ego v0.0.0-20191210085739-4c62d9e4f7b5/go.mod h1:muPrpQs3Zn37xWOtGKmMmxn9MMnb2NzH/CpGeUfhDyk=
+github.com/azd1997/zinx v0.0.0-20191204020044-5cc0026730b6/go.mod h1:goqwQYhBLjuGYhs3S+IDjrKmPoO5Qz3Bm8/r7N8rRBg=
 github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 h1:kHaBemcxl8o/pQ5VM1c8PVE1PubbNx3mjUr09OqWGCs=
 github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575/go.mod h1:9d6lWj8KzO/fd/NrVaLscBKmPigpZpn5YawRPw+e3Yo=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
