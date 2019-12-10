@@ -4,3 +4,4 @@
 *.account
 *.eaccounts
 /ecoin/database/tmp
+/ecoin/blockchain/singlechain/tmp

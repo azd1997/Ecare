@@ -1,7 +1,6 @@
 package transaction
 
 import (
-	"errors"
 	"github.com/azd1997/Ecare/ecoin/crypto"
 	"github.com/azd1997/Ecare/ecoin/storage"
 	"github.com/azd1997/Ecare/ecoin/utils"

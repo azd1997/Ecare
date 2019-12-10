@@ -65,7 +65,8 @@ func DbExists(dbEngine string, path string) bool {
 		log.Fatal("检查路径是否存在时发生未知错误：", err)
 	}
 	if !exists {
-		log.Fatal(path, ": 数据库路径不存在")
+		log.Println(path, ": 数据库路径不存在")
+		return false
 	}
 
 	// 确保了数据库指定的路径存在后，检查数据库MANIFEST文件是否存在

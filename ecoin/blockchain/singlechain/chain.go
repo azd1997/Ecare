@@ -15,14 +15,14 @@ import (
 
 // InitChainArgs 初始化区块链的传入参数
 type InitChainArgs struct {
-	dbPath        string
-	coinbaseArgs  *transaction.CoinbaseArgs
-	checkArgsFunc transaction.CheckArgsFunc
+	DbPath        string
+	CoinbaseArgs  *transaction.CoinbaseArgs
+	CheckArgsFunc transaction.CheckArgsFunc
 }
 
 // ContinueChainArgs 继续区块链参数
 type ContinueChainArgs struct {
-	dbPath string
+	DbPath string
 }
 
 // Chain 区块链
@@ -37,19 +37,19 @@ type Chain struct {
 func InitChain(args *InitChainArgs) (c *Chain, err error) {
 
 	// 确保数据库存在
-	if database.DbExists(DBEngine, args.dbPath) {
+	if database.DbExists(DBEngine, args.DbPath) {
 		// 如果数据库已经存在，在上一级的调用函数中应该处理这个错误并退出软件runtime.Goexit()
 		return nil, utils.WrapError("InitChain", ErrChainAlreadyExists)
 	}
 
 	// 打开数据库
-	db, err := database.OpenDatabaseWithRetry(DBEngine, args.dbPath)
+	db, err := database.OpenDatabaseWithRetry(DBEngine, args.DbPath)
 	if err != nil {
 		return nil, utils.WrapError("InitChain", err)
 	}
 
 	// 构建创世区块
-	cbTx, err := transaction.NewTXWithArgsCheck(transaction.TX_COINBASE, args.coinbaseArgs, args.checkArgsFunc)
+	cbTx, err := transaction.NewTXWithArgsCheck(transaction.TX_COINBASE, args.CoinbaseArgs, args.CheckArgsFunc)
 	if err != nil {
 		return nil, utils.WrapError("InitChain", err)
 	}
@@ -81,12 +81,12 @@ func InitChain(args *InitChainArgs) (c *Chain, err error) {
 func ContinueChain(args *ContinueChainArgs) (c *Chain, err error) {
 
 	// 检查数据库是否存在
-	if !database.DbExists(DBEngine, args.dbPath) {
+	if !database.DbExists(DBEngine, args.DbPath) {
 		return nil, utils.WrapError("ContinueChain", ErrChainNotExists)
 	}
 
 	// 打开数据库
-	db, err := database.OpenDatabaseWithRetry(DBEngine, args.dbPath)
+	db, err := database.OpenDatabaseWithRetry(DBEngine, args.DbPath)
 	if err != nil {
 		return nil, utils.WrapError("ContinueChain", err)
 	}
