@@ -17,18 +17,18 @@ import (
 
 // BLockHeader 区块头
 type BlockHeader struct {
-	Id       uint // 从0开始，很多称为height
-	Time     common.TimeStamp
-	PrevHash crypto.Hash
-	Hash     crypto.Hash   // 当前区块哈希，实际是区块体内交易列表组成的MerkleTree的根哈希
+	Id         uint // 从0开始，很多称为height
+	Time       common.TimeStamp
+	PrevHash   crypto.Hash
+	Hash       crypto.Hash // 当前区块哈希，实际是区块体内交易列表组成的MerkleTree的根哈希
 	MerkleRoot crypto.Hash
-	CreateBy account.UserId // 由哪个账户创建
+	CreateBy   account.UserId // 由哪个账户创建
 }
 
 // BlockBody 区块体内容为交易列表
 type BlockBody struct {
 	Transactions [][]byte
-	TxTypes []uint	// 交易类型列表
+	TxTypes      []uint // 交易类型列表
 }
 
 // Block 区块
@@ -39,13 +39,13 @@ type Block struct {
 
 // BlockForPrint 用于打印的区块结构
 type BlockForPrint struct {
-	Id       uint    `json:"id"` // 从0开始，很多称为height
-	Time     string `json:"time"`
+	Id       uint     `json:"id"` // 从0开始，很多称为height
+	Time     string   `json:"time"`
 	PrevHash []byte   `json:"prevHash, omitempty"` // 对于创世区块，没有prevHash，零值是nil则会在json转换时忽略该项
 	Hash     []byte   `json:"hash"`                // 当前区块哈希，实际是区块体内交易列表组成的MerkleTree的根哈希
-	CreateBy string `json:"createBy"`            // 由哪个账户创建
+	CreateBy string   `json:"createBy"`            // 由哪个账户创建
 	Txs      [][]byte `json:"txs"`
-	TxTypes []uint `json:"txTypes"`
+	TxTypes  []uint   `json:"txTypes"`
 }
 
 // String 转换字符串
@@ -59,7 +59,7 @@ func (b *Block) String() string {
 		Hash:     b.Hash,
 		CreateBy: b.CreateBy.Id,
 		Txs:      b.Transactions,
-		TxTypes:b.TxTypes,
+		TxTypes:  b.TxTypes,
 	}
 
 	bytes1, err := utils.JsonMarshalIndent(blockForPrint)
@@ -79,7 +79,7 @@ func NewBlock(txs []transaction.TX, prevHash crypto.Hash, blcokId uint, createBy
 		txsBytes[i], err = tx.Serialize()
 		if err != nil {
 			// 记录下错误并继续
-			log.Error("NewBlock: %s\n", err)		// TODO:这里其实不能有错误，一旦出错，即便把区块发出去其他人也不会认
+			log.Error("NewBlock: %s\n", err) // TODO:这里其实不能有错误，一旦出错，即便把区块发出去其他人也不会认
 			continue
 		}
 		txTypes[i] = tx.TypeNo()
@@ -98,7 +98,7 @@ func NewBlock(txs []transaction.TX, prevHash crypto.Hash, blcokId uint, createBy
 		},
 		BlockBody: BlockBody{
 			Transactions: txsBytes,
-			TxTypes:txTypes,
+			TxTypes:      txTypes,
 		},
 	}
 }
@@ -117,13 +117,13 @@ func GenesisBlock(coinbase *transaction.TxCoinbase) (gb *Block, err error) {
 		BlockHeader: BlockHeader{
 			Id:       0,
 			Time:     common.TimeStamp(time.Now().Unix()),
-			PrevHash:crypto.Hash{},
+			PrevHash: crypto.ZeroHASH,
 			Hash:     merkle.RootNode.Data,
 			CreateBy: coinbase.To,
 		},
 		BlockBody: BlockBody{
 			Transactions: [][]byte{coinbaseTxBytes},
-			TxTypes:[]uint{transaction.TX_COINBASE},
+			TxTypes:      []uint{transaction.TX_COINBASE},
 		},
 	}, nil
 }
@@ -190,26 +190,26 @@ func (b *Block) VerifyTXs(txFunc transaction.ValidateTxFunc) (txTypeNoArray [][]
 			return nil, ErrBlockContainsInvalidTX
 		}
 		switch b.TxTypes[i] {
-		case transaction.TX_COINBASE:	// TX_COINBASE = 1
+		case transaction.TX_COINBASE: // TX_COINBASE = 1
 			if b.CreateBy != tx.(*transaction.TxCoinbase).To {
 				return nil, transaction.ErrUnmatchedReceiver
 			}
 			txTypeNoArray[0] = append(txTypeNoArray[0], uint(i))
-		case transaction.TX_GENERAL:	// 2
+		case transaction.TX_GENERAL: // 2
 			txTypeNoArray[1] = append(txTypeNoArray[1], uint(i))
-		case transaction.TX_R2P:	// 3
+		case transaction.TX_R2P: // 3
 			txTypeNoArray[2] = append(txTypeNoArray[2], uint(i))
-		case transaction.TX_P2R:	// 4
+		case transaction.TX_P2R: // 4
 			txTypeNoArray[3] = append(txTypeNoArray[3], uint(i))
-		case transaction.TX_P2H:	// 5
+		case transaction.TX_P2H: // 5
 			txTypeNoArray[4] = append(txTypeNoArray[4], uint(i))
-		case transaction.TX_H2P:	// 6
+		case transaction.TX_H2P: // 6
 			txTypeNoArray[5] = append(txTypeNoArray[5], uint(i))
-		case transaction.TX_P2D:	// 7
+		case transaction.TX_P2D: // 7
 			txTypeNoArray[6] = append(txTypeNoArray[6], uint(i))
-		case transaction.TX_D2P:	// 8
+		case transaction.TX_D2P: // 8
 			txTypeNoArray[7] = append(txTypeNoArray[7], uint(i))
-		case transaction.TX_ARBITRATE:	// 9
+		case transaction.TX_ARBITRATE: // 9
 			// 仲裁交易还需要检查仲裁者是否是出块者
 			if b.CreateBy != tx.(*transaction.TxArbitrate).Arbitrator {
 				return nil, transaction.ErrUnmatchedSender
