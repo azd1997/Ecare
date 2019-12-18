@@ -1,5 +1,12 @@
 package p2ptcp
 
+const PROTOCOL = "tcp"
+
+const (
+	Push byte = '1'
+	Pull byte = '0'
+)
+
 const (
 	UnknownMsg = iota
 	PingMsg

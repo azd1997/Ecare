@@ -2,29 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f8c5013-be63-48a1-a983-cc2da3ff1566" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/ecoin/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/account.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/account_test.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/accounts.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/constants.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/interface.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/privkey.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/pubkey.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/signature.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/account/userid.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/doc/account.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/doc/accounts.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/log/color-log.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/utils/encode.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/utils/errors.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/utils/hash.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/utils/mkdir.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/utils/pathexists.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/utils/savefile.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/p2p/interface.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/p2p/interface.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/constants.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/tcp.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/tcp.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
     </list>
->>>>>>> Stashed changes
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +24,9 @@
     </option>
   </component>
   <component name="GOROOT" path="/usr/local/go" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1QdRdelggRQ4TImg4T1CiO29iHO" />
   <component name="PropertiesComponent">
     <property name="DefaultGoTemplateProperty" value="Go File" />
@@ -52,7 +39,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="com.goide.configuration.GoProjectSettingsConfigurable" />
+    <property name="settings.editor.selected.configurable" value="copyright.profiles" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -152,6 +139,19 @@
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.md" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
