@@ -2,12 +2,28 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f8c5013-be63-48a1-a983-cc2da3ff1566" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/ecoin/net/addr.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/address.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/address_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/args.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/constants.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/eaddr.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/eaddrs.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-account.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-addr.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-block.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-data.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-getblocks.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-getdata.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-inv.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-ping.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-pot.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-transaction.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net-version.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/net_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/net/node.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/p2p/interface.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/p2p/interface.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/constants.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/tcp.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/p2p/p2ptcp/tcp.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -28,11 +44,14 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1QdRdelggRQ4TImg4T1CiO29iHO" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="PropertiesComponent">
     <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/ecoin" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/ecoin/net" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -42,15 +61,15 @@
     <property name="settings.editor.selected.configurable" value="copyright.profiles" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/patient/protocol" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ecoin/net" />
       <recent name="$PROJECT_DIR$/ecoin" />
       <recent name="$PROJECT_DIR$/example/general" />
       <recent name="$PROJECT_DIR$/ecoinlib/log" />
       <recent name="$PROJECT_DIR$/common/ecoinlib/types" />
-      <recent name="$PROJECT_DIR$/common/ecoinlib/log" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/patient/protocol" />
     </key>
   </component>
   <component name="RunDashboard">
