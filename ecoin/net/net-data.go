@@ -3,6 +3,7 @@ package net
 import (
 	"bytes"
 	"fmt"
+	"github.com/azd1997/Ecare/ecoin/eaddr"
 	"github.com/azd1997/Ecare/ecoin/utils"
 	"github.com/azd1997/Ecare/ecoinlib/log"
 	"github.com/azd1997/ego/enet/etcp"
@@ -14,10 +15,10 @@ import (
 
 // SendData 发送数据。
 // 调用之前先将数据封包好
-func (n *TCPNode) SendData(to Addr, data []byte) error {
+func (n *TCPNode) SendData(to eaddr.Addr, data []byte) error {
 
 	// to应当之前就在localNodeList中。在发送数据时检查是不是已有节点并且找到其位置
-	self := Addr{
+	self := eaddr.Addr{
 		Ip:   n.Server.Option().Host,
 		Port: n.Server.Option().TcpPort,
 	}
@@ -36,7 +37,7 @@ func (n *TCPNode) SendData(to Addr, data []byte) error {
 	//连接不可用, 成为作恶情况之一（断网，情况轻微）， 记录作恶历史，连续三次不可用，标记为unreachable
 	if err != nil {
 		// 连接不可用时，调用EAddrs的方法记录作恶时间作恶类型等
-		n.EAddrs.Record(to, BadConnFail)
+		n.EAddrs.Record(to, eaddr.BadConnFail)
 
 		return fmt.Errorf("SendData: %s: %s", ErrUnreachableNode, to)
 	}
@@ -58,7 +59,7 @@ func (n *TCPNode) SendDataBack(conn net.TCPConn, data []byte) error {
 }
 
 // Broadcast 广播
-func (n *TCPNode) Broadcast(addrs []Addr, data []byte) {
+func (n *TCPNode) Broadcast(addrs []eaddr.Addr, data []byte) {
 
 	for _, addr := range addrs {
 		// 并发处理 TODO： 连接池等优化 。 每个节点不仅要作为服务端和多个节点连接，还要作为客户端和多个服务端连接。所以客户端也一样要进行连接优化
@@ -73,7 +74,7 @@ func (n *TCPNode) Broadcast(addrs []Addr, data []byte) {
 }
 
 // SendMsg 单独发送消息
-func (n *TCPNode) SendMsg(to Addr, data []byte) error {
+func (n *TCPNode) SendMsg(to eaddr.Addr, data []byte) error {
 
 	// 建立连接
 	conn, err := net.Dial(PROTOCOL, to.String())
