@@ -4,6 +4,7 @@ const (
 	CmdUnknown uint8 = iota
 	CmdPing
 	CmdPong
+	CmdGetAddrs
 	CmdAddrs
 	CmdInv
 	CmdVersion

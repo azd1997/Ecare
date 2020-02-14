@@ -2,14 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f8c5013-be63-48a1-a983-cc2da3ff1566" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/ecoin/common/doc.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ecoin/common/potmsg.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/args.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/args.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/eaddr/eaddr.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/eaddr/eaddr.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/eaddr/eaddrs.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/eaddr/eaddrs.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ecoin/net/cmd.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/cmd.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/eaddr.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/eaddr.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/eaddrs.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/eaddrs.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/net-addr.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/net-addr.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/net/net-pot.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/net-pot.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ecoin/net/node.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/node.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -55,6 +55,7 @@
       <recent name="$PROJECT_DIR$/common/ecoinlib/types" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/ecoin/eaddr" />
       <recent name="$PROJECT_DIR$/patient/protocol" />
     </key>
   </component>
@@ -70,29 +71,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Go Test.TestAccounts_LoadFileWithGobDecode in github.com/azd1997/Ecare/ecoin/account">
-    <configuration name="TestAccount_Sign in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="Ecare" />
-      <working_directory value="$PROJECT_DIR$/ecoin/account" />
-      <framework value="gotest" />
-      <kind value="PACKAGE" />
-      <package value="github.com/azd1997/Ecare/ecoin/account" />
-      <directory value="$PROJECT_DIR$/" />
-      <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestAccount_Sign$" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TestAccount_UserID in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
-      <module name="Ecare" />
-      <working_directory value="$PROJECT_DIR$/ecoin/account" />
-      <framework value="gotest" />
-      <kind value="PACKAGE" />
-      <package value="github.com/azd1997/Ecare/ecoin/account" />
-      <directory value="$PROJECT_DIR$/" />
-      <filePath value="$PROJECT_DIR$/" />
-      <pattern value="^TestAccount_UserID$" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Go Test.go test github.com/azd1997/Ecare/ecoin/transaction">
     <configuration name="TestAccounts_AddAccount in github.com/azd1997/Ecare/ecoin/account" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
       <module name="Ecare" />
       <working_directory value="$PROJECT_DIR$/ecoin/account" />
@@ -126,13 +105,34 @@
       <pattern value="^TestAccounts_SaveFileWithGobEncode$" />
       <method v="2" />
     </configuration>
+    <configuration name="TestAddrLists_L1Ipv4Honest in github.com/azd1997/Ecare/ecoin/net" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="Ecare" />
+      <working_directory value="$PROJECT_DIR$/ecoin/net" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/azd1997/Ecare/ecoin/net" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <pattern value="^TestAddrLists_L1Ipv4Honest$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go test github.com/azd1997/Ecare/ecoin/transaction" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="Ecare" />
+      <working_directory value="$PROJECT_DIR$/ecoin/transaction" />
+      <framework value="gotest" />
+      <kind value="PACKAGE" />
+      <package value="github.com/azd1997/Ecare/ecoin/transaction" />
+      <directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Test.go test github.com/azd1997/Ecare/ecoin/transaction" />
+        <item itemvalue="Go Test.TestAddrLists_L1Ipv4Honest in github.com/azd1997/Ecare/ecoin/net" />
         <item itemvalue="Go Test.TestAccounts_LoadFileWithGobDecode in github.com/azd1997/Ecare/ecoin/account" />
         <item itemvalue="Go Test.TestAccounts_SaveFileWithGobEncode in github.com/azd1997/Ecare/ecoin/account" />
         <item itemvalue="Go Test.TestAccounts_AddAccount in github.com/azd1997/Ecare/ecoin/account" />
-        <item itemvalue="Go Test.TestAccount_Sign in github.com/azd1997/Ecare/ecoin/account" />
-        <item itemvalue="Go Test.TestAccount_UserID in github.com/azd1997/Ecare/ecoin/account" />
       </list>
     </recent_temporary>
   </component>

@@ -106,20 +106,65 @@ func (n *TCPNode) HandleConnection(conn net.Conn) {
 	}
 }
 
+//====================================Ping-Pong=======================================
+
+func (n *TCPNode) Ping(to eaddr.Addr) {
+	req := []byte{CmdPing}
+	conn, _ := net.Dial(PROTOCOL, to.String())
+	_, _ = conn.Write(req)
+}
+
 func (n *TCPNode) HandlePing(conn net.Conn) {
 	response := []byte{CmdPong}
 	_, _ = conn.Write(response)
 }
 
 func (n *TCPNode) HandlePong(conn net.Conn) {
-	response := []byte{CmdPong}
+	// 获取远程主机地址。 （事实上，在Ping-Pong过程中返回Pong的一定是你主动发起连接的目标主机。
+	// 可以通过让返回的Pong包含这个地址信息，也可以像这样获取出来，都行）
 	tcpaddr, _ := net.ResolveTCPAddr(conn.RemoteAddr().Network(), conn.RemoteAddr().String())
+	addr := eaddr.Addr{Ip: tcpaddr.IP.String(), Port: tcpaddr.Port}
 
-	n.EAddrs.EAddrPingStop(eaddr.Addr{Ip: tcpaddr.IP.String(), Port: tcpaddr.Port})
-	net.TCPConn{}
+	// Ping stop， 处理总耗时
+	n.EAddrs.EAddrPingStop(addr)
 }
 
 
+//====================================Addrs=======================================
+
+// Addrs的场景
+// 1. 节点上线时向seed节点(可能是写死的或者自选的)请求节点列表，seed节点随之将其节点列表打包发回
+// 2. 节点注册时，藉由注册命令，seed节点会将该节点地址向其他节点扩散。
+
+func (n *TCPNode) SendGetAddrs(to eaddr.Addr) {
+	req := []byte{CmdGetAddrs}
+	conn, _ := net.Dial(PROTOCOL, to.String())
+	_, _ = conn.Write(req)
+}
+
+func (n *TCPNode) HandleGetAddrs(conn net.Conn) {
+	addrs := n.EAddrs.ValidAddrs()
+	payload, _ := utils.GobEncode(addrs)
+	resp := append([]byte{CmdAddrs}, payload...)
+	_, _ = conn.Write(resp)
+}
+
+func (n *TCPNode) HandleAddrs(conn net.Conn) {
+	addrs := n.EAddrs.ValidAddrs()
+	payload, _ := utils.GobEncode(addrs)
+	resp := append([]byte{CmdGetAddrs}, payload...)
+	_, _ = conn.Write(resp)
+}
+
+//====================================EAddrs=======================================
+
+//====================================Version=======================================
+
+type Version struct {
+	NodeVer uint8
+	ChainHeight int
+
+}
 
 
 

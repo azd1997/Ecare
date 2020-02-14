@@ -1,12 +1,9 @@
 package eaddr
 
 import (
-	"github.com/azd1997/Ecare/ecoin/common"
-	"github.com/azd1997/Ecare/ecoin/net"
 	"github.com/azd1997/Ecare/ecoin/utils"
 	"github.com/azd1997/ego/edatabase"
 	"sync"
-	"time"
 )
 
 // 每个节点存储的节点集合。普通用户不必存这么详细，有待删减
@@ -41,67 +38,21 @@ func (eaddrs *EAddrs) SetEAddr(eaddr *EAddr) {
 }
 
 func (eaddrs *EAddrs) EAddrPingStart(addr Addr) {
-	eaddrs.Lock()
-	defer eaddrs.Unlock()
-
-	eaddrs.m[addr.String()].PingStart = time.Now().UnixNano()
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+	eaddrs.m[addr.String()].PingStart()
 }
 
 func (eaddrs *EAddrs) EAddrPingStop(addr Addr) {
-	eaddrs.Lock()
-	defer eaddrs.Unlock()
-
-	eaddrs.m[addr.String()].PingDelay = time.Since(time.Unix(0, eaddrs.m[addr.String()].PingStart))
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+	eaddrs.m[addr.String()].PingStop()
 }
 
 func (eaddrs *EAddrs) Record(a Addr, behaviour uint8) {
-	// 判断behaviour在不在creditPolicy表
-	if v, ok := CreditPolicy[behaviour]; !ok { // v是对应的积分增量
-		// do nothing
-		return
-	} else {
-
-		// 合规记录
-		if behaviour >= 100 {
-			eaddr := eaddrs.EAddr(a)
-			eaddr.Credit += v
-			eaddrs.SetEAddr(&eaddr)
-		} else {	// 作恶记录
-			eaddr := eaddrs.EAddr(a)
-
-			// 对副本进行操作
-			eaddr.Credit += v
-			// 检查Reachable
-			if behaviour == BadConnFail {
-				eaddr.Reachable = false
-			}
-			// 检查Honest
-			if eaddr.Credit < 0 {
-				eaddr.Honest = false
-			}
-
-			// 清除PotMsg和PingTime
-			eaddr.PotMsg = net.PotMsg{}
-			eaddr.PingTime = 0
-
-			// 更新badnum
-			badRecord := BadRecord{
-				Time:    common.TimeStamp(time.Now().Unix()),
-				BadType: behaviour,
-				Punish:  v,
-				Prev:    nil,
-				Next:    eaddr.BadRecords,
-			}
-			eaddr.BadRecords.Prev = &badRecord
-			eaddr.BadRecords = &badRecord
-			eaddr.ContinuousBadNum++
-			eaddr.TotalBadNum++
-
-
-			eaddrs.SetEAddr(&eaddr)
-		}
-	}
-
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+	eaddrs.m[a.String()].Record(behaviour)
 }
 
 func (eaddrs *EAddrs) Save() error {
