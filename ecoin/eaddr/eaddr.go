@@ -5,9 +5,7 @@ import (
 	"encoding/gob"
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/common"
-	"github.com/azd1997/Ecare/ecoin/net"
 	"github.com/azd1997/Ecare/ecoin/utils"
-	"sync"
 	"time"
 )
 
@@ -24,35 +22,35 @@ type EAddr struct {
 
 	// 当前出块周期该节点的PotMsg
 	// 其读取和更新一定是不同时的，所以不会产生竞态
-	potMsg net.PotMsg
+	potMsg *common.PotMsg
 
 	// Ping相关 每个周期都会定时触发Ping操作，继而更新Ping表
 	// Ping的更新是固定时间间隔的，但是查取是用在EAddrs取排序节点时使用，所以读写时间不确定顺序，需要加个锁（不加影响也不大，其实这里所有成员都不加影响也不大）
 	pingDelay time.Duration  // 通信延迟。 0是不可达标志
 	pingStartTime int64
 	pingNum int
-	pingLock sync.RWMutex
+	//pingLock sync.RWMutex
 
 	// 网络可达与否。 每次作为客户端 *主动发起连接* 时会检测连接失败与否
 	// 一旦连接失败，视为不可达，除非对方主动发消息过来否则不会再向其发送数据
 	// 这意味着，当对方节点主动发起连接时，需要先判断对方的可达状态并更新
 	reachable bool
-	reachableLock sync.RWMutex
+	//reachableLock sync.RWMutex
 
 	// Honest诚实与否。 当信誉分降为0后，honest=false
 	honest    bool  // 诚实与否的结果
-	honestLock sync.RWMutex
+	//honestLock sync.RWMutex
 
 	// 信誉分
 	credit           int // 信誉分. 假定信誉分初始为0， 每出一个区块加1，TODO
-	creditLock sync.RWMutex
+	//creditLock sync.RWMutex
 
 	// 作恶记录
 	continuousBadNum int // 作恶记录链表的长度，节点作恶记录会持续记录，直至信誉分被扣光，节点被封禁。
 	// 当节点发送某些特殊信息或者是赎金交易之后，恢复节点能力，此时，信誉分清零，重新开始记录作恶链表。但TotalBadNum会记录作恶总数
 	totalBadNum int
 	badRecords  *BadRecord // 这个链表一直从头部插入。（某种意义上是个栈）链头节点（也就是这个）就是最新的作恶记录
-	badRecordLock sync.RWMutex
+	//badRecordLock sync.RWMutex
 
 }
 
@@ -85,51 +83,51 @@ func (eaddr *EAddr) SetUserId(userId account.UserId) {
 
 //=============================PoT Msg================================
 
-func (eaddr *EAddr) PotMsg() net.PotMsg {
+func (eaddr *EAddr) PotMsg() *common.PotMsg {
 	return eaddr.potMsg
 }
 
-func (eaddr *EAddr) SetPotMsg(potMsg net.PotMsg) {
+func (eaddr *EAddr) SetPotMsg(potMsg *common.PotMsg) {
 	eaddr.potMsg = potMsg
 }
 
 //=============================Ping相关================================
 
 func (eaddr *EAddr) PingNum() int {
-	eaddr.pingLock.RLock()
-	defer eaddr.pingLock.RUnlock()
+	//eaddr.pingLock.RLock()
+	//defer eaddr.pingLock.RUnlock()
 	return eaddr.pingNum
 }
 
 func (eaddr *EAddr) PingStartTime() int64 {
-	eaddr.pingLock.RLock()
-	defer eaddr.pingLock.RUnlock()
+	//eaddr.pingLock.RLock()
+	//defer eaddr.pingLock.RUnlock()
 	return eaddr.pingStartTime
 }
 
 func (eaddr *EAddr) PingDelay() time.Duration {
-	eaddr.pingLock.RLock()
-	defer eaddr.pingLock.RUnlock()
+	//eaddr.pingLock.RLock()
+	//defer eaddr.pingLock.RUnlock()
 	return eaddr.pingDelay
 }
 
 func (eaddr *EAddr) clearPingDelay() {
-	eaddr.pingLock.Lock()
-	defer eaddr.pingLock.Unlock()
+	//eaddr.pingLock.Lock()
+	//defer eaddr.pingLock.Unlock()
 	eaddr.pingDelay = 0
 }
 
 func (eaddr *EAddr) PingStart() {
-	eaddr.pingLock.Lock()
-	defer eaddr.pingLock.Unlock()
+	//eaddr.pingLock.Lock()
+	//defer eaddr.pingLock.Unlock()
 
 	eaddr.pingNum++
 	eaddr.pingStartTime = time.Now().UnixNano()
 }
 
 func (eaddr *EAddr) PingStop() {
-	eaddr.pingLock.Lock()
-	defer eaddr.pingLock.Unlock()
+	//eaddr.pingLock.Lock()
+	//defer eaddr.pingLock.Unlock()
 
 	eaddr.pingDelay = time.Since(time.Unix(0, eaddr.pingStartTime))
 }
@@ -137,70 +135,70 @@ func (eaddr *EAddr) PingStop() {
 //=============================网络可达================================
 
 func (eaddr *EAddr) Reachable() bool {
-	eaddr.reachableLock.RLock()
-	defer eaddr.reachableLock.RUnlock()
+	//eaddr.reachableLock.RLock()
+	//defer eaddr.reachableLock.RUnlock()
 	return eaddr.reachable
 }
 
 func (eaddr *EAddr) setReachable(reach bool) {
-	eaddr.reachableLock.Lock()
-	defer eaddr.reachableLock.Unlock()
+	//eaddr.reachableLock.Lock()
+	//defer eaddr.reachableLock.Unlock()
 	eaddr.reachable = reach
 }
 
 //=============================节点诚实================================
 
 func (eaddr *EAddr) Honest() bool {
-	eaddr.honestLock.RLock()
-	defer eaddr.honestLock.RUnlock()
+	//eaddr.honestLock.RLock()
+	//defer eaddr.honestLock.RUnlock()
 	return eaddr.honest
 }
 
 func (eaddr *EAddr) setHonest(honest bool) {
-	eaddr.honestLock.Lock()
-	defer eaddr.honestLock.Unlock()
+	//eaddr.honestLock.Lock()
+	//defer eaddr.honestLock.Unlock()
 	eaddr.honest = honest
 }
 
 //=============================信誉积分================================
 
 func (eaddr *EAddr) Credit() int {
-	eaddr.creditLock.RUnlock()
-	defer eaddr.creditLock.RUnlock()
+	//eaddr.creditLock.RUnlock()
+	//defer eaddr.creditLock.RUnlock()
 	return eaddr.credit
 }
 
 func (eaddr *EAddr) addCredit(delta int) {
-	eaddr.creditLock.Unlock()
-	defer eaddr.creditLock.Unlock()
+	//eaddr.creditLock.Unlock()
+	//defer eaddr.creditLock.Unlock()
 	eaddr.credit += delta
 }
 
 //==============================作恶记录===============================
 
 func (eaddr *EAddr) TotalBadNum() int {
-	eaddr.badRecordLock.RLock()
-	defer eaddr.badRecordLock.RUnlock()
+	//eaddr.badRecordLock.RLock()
+	//defer eaddr.badRecordLock.RUnlock()
 	return eaddr.totalBadNum
 }
 
 func (eaddr *EAddr) ContinuousBadNum() int {
-	eaddr.badRecordLock.RLock()
-	defer eaddr.badRecordLock.RUnlock()
+	//eaddr.badRecordLock.RLock()
+	//defer eaddr.badRecordLock.RUnlock()
 	return eaddr.continuousBadNum
 }
 
 func (eaddr *EAddr) BadRecords() *BadRecord {
 	// 注意这里其实是写锁
-	eaddr.badRecordLock.Lock()
-	defer eaddr.badRecordLock.Unlock()
+	//eaddr.badRecordLock.Lock()
+	//defer eaddr.badRecordLock.Unlock()
 	return eaddr.badRecords
 }
 
 func (eaddr *EAddr) insetBadRecords(r *BadRecord) {
 	// r.Next已经指向原头部节点
-	eaddr.badRecordLock.Lock()
-	defer eaddr.badRecordLock.Unlock()
+	//eaddr.badRecordLock.Lock()
+	//defer eaddr.badRecordLock.Unlock()
 	eaddr.badRecords.Prev = r
 	eaddr.badRecords = r
 }
@@ -248,6 +246,11 @@ func (eaddr *EAddr) Record(behaviour uint8) {
 
 }
 
+//==============================有效性===============================
+func (eaddr *EAddr) IsValid() bool {
+	return eaddr.honest && eaddr.reachable
+}
+
 //==============================序列化===============================
 
 type eAddr struct {
@@ -271,11 +274,11 @@ type eAddr struct {
 
 func (eaddr *EAddr) Serialize() ([]byte, error) {
 
-	eaddr.pingLock.RLock()
-	eaddr.reachableLock.RLock()
-	eaddr.honestLock.RLock()
-	eaddr.creditLock.RLock()
-	eaddr.badRecordLock.RLock()
+	//eaddr.pingLock.RLock()
+	//eaddr.reachableLock.RLock()
+	//eaddr.honestLock.RLock()
+	//eaddr.creditLock.RLock()
+	//eaddr.badRecordLock.RLock()
 
 	eaddrC := eAddr{
 		Addr:             eaddr.Addr,
@@ -290,12 +293,12 @@ func (eaddr *EAddr) Serialize() ([]byte, error) {
 		TotalBadNum:      eaddr.totalBadNum,
 		BadRecords:       eaddr.badRecords,
 	}
-
-	eaddr.pingLock.RUnlock()
-	eaddr.reachableLock.RUnlock()
-	eaddr.honestLock.RUnlock()
-	eaddr.creditLock.RUnlock()
-	eaddr.badRecordLock.RUnlock()
+	//
+	//eaddr.pingLock.RUnlock()
+	//eaddr.reachableLock.RUnlock()
+	//eaddr.honestLock.RUnlock()
+	//eaddr.creditLock.RUnlock()
+	//eaddr.badRecordLock.RUnlock()
 
 	return utils.GobEncode(eaddrC)
 }
@@ -323,16 +326,6 @@ func (eaddr *EAddr) Deserialize(data []byte) error {
 	return nil
 }
 
-
-
-// 作恶记录，双链表节点
-type BadRecord struct {
-	Time       common.TimeStamp
-	BadType    uint8 // 作恶类型
-	Punish     int   // 惩罚，负值
-	Prev, Next *BadRecord
-}
-
 // NewEAddr 新建一个Address。ping为0, 表示未知， honest为true
 func NewEAddr(addr Addr, alias string) *EAddr {
 	return &EAddr{
@@ -341,27 +334,4 @@ func NewEAddr(addr Addr, alias string) *EAddr {
 	}
 }
 
-// BadType
-const (
-	BadUnknown  = iota
-	BadConnFail // 注意连接失败一次扣固定分值。并视为节点掉线，不继续扣分，也不会再给它发消息
 
-)
-
-// Credit
-var CreditPolicy = map[uint8]int{
-
-	// 作恶情况
-	BadUnknown:  -1,
-	BadConnFail: -1,
-
-	// 合规情况
-	GoodUnknown: 1,
-	GoodBlock:   1,
-}
-
-// GoodType
-const (
-	GoodUnknown = 100 + iota
-	GoodBlock   // 出了一个好的区块
-)

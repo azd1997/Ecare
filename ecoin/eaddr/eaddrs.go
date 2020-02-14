@@ -1,8 +1,10 @@
 package eaddr
 
 import (
+	"github.com/azd1997/Ecare/ecoin/erro"
 	"github.com/azd1997/Ecare/ecoin/utils"
 	"github.com/azd1997/ego/edatabase"
+	"sort"
 	"sync"
 )
 
@@ -17,38 +19,69 @@ type EAddrs struct {
 	DbPath string
 }
 
-func (eaddrs *EAddrs) ValidAddrs() []Addr {
-	return nil
+// ValidAddrs 返回所有有效的地址列表
+func (eaddrs *EAddrs) ValidAddrs() []string {
+	eaddrs.RWMutex.RLock()
+	defer eaddrs.RWMutex.RUnlock()
+
+	res := make([]string, 0, len(eaddrs.m))
+	for addrStr, eaddr := range eaddrs.m {
+		if eaddr.IsValid() {
+			res = append(res, addrStr)
+		}
+	}
+
+	return res
 }
 
-func (eaddrs *EAddrs) SortedValidAddrs() []Addr {
-	return nil
+// SortedValidAddrs 返回所有有效的地址列表，并且排好序
+func (eaddrs *EAddrs) SortedValidAddrs() []string {
+	eaddrs.RWMutex.RLock()
+	defer eaddrs.RWMutex.RUnlock()
+
+	res := make([]string, 0, len(eaddrs.m))
+	for addrStr, eaddr := range eaddrs.m {
+		if eaddr.IsValid() {
+			res = append(res, addrStr)
+		}
+	}
+	// 按pingtime排序
+	sort.Slice(res, func(i, j int) bool {
+		return eaddrs.m[res[i]].pingDelay < eaddrs.m[res[j]].pingDelay
+	})
+	return res
 }
 
-func (eaddrs *EAddrs) EAddr(addr Addr) EAddr {
+// EAddr 根据Addr查看EAddr
+func (eaddrs *EAddrs) EAddr(addr Addr) *EAddr {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
-	return *eaddrs.m[addr.String()]
+	return eaddrs.m[addr.String()]
 }
 
+// SetEAddr 设置/更新EAddr
+// 修改EAddr时，建议直接读出来拷贝一份再传回
 func (eaddrs *EAddrs) SetEAddr(eaddr *EAddr) {
 	eaddrs.Lock()
 	defer eaddrs.Unlock()
 	eaddrs.m[eaddr.Addr.String()] = eaddr
 }
 
+// EAddrPingStart 开始ping一个Addr
 func (eaddrs *EAddrs) EAddrPingStart(addr Addr) {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
 	eaddrs.m[addr.String()].PingStart()
 }
 
+// EAddrPingEnd 结束ping一个Addr，将时延记录
 func (eaddrs *EAddrs) EAddrPingStop(addr Addr) {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
 	eaddrs.m[addr.String()].PingStop()
 }
 
+// Record 记录某个Addr的某个行为
 func (eaddrs *EAddrs) Record(a Addr, behaviour uint8) {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
@@ -90,7 +123,7 @@ func (eaddrs *EAddrs) Load() error {
 	
 	
 	if !edatabase.DbExists(eaddrs.DbEngine, eaddrs.DbPath) {
-		return utils.WrapError("EAddrs_Load", ErrDbNotExists)
+		return utils.WrapError("EAddrs_Load", erro.ErrDbNotExists)
 	}
 	db, err := edatabase.OpenDatabaseWithRetry(eaddrs.DbEngine, eaddrs.DbPath)
 	if err != nil {
@@ -109,3 +142,11 @@ func (eaddrs *EAddrs) Load() error {
 }
 
 // TODO: 其他各种方法
+
+// IsAddrValid 查看Addr是否有效
+func (eaddrs *EAddrs) IsAddrValid(addr Addr) bool {
+	eaddrs.RWMutex.RLock()
+	defer eaddrs.RWMutex.RUnlock()
+	eaddr := eaddrs.m[addr.String()]
+	return eaddr.honest && eaddr.reachable
+}
