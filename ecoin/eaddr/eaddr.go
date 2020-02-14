@@ -327,8 +327,8 @@ func (eaddr *EAddr) Deserialize(data []byte) error {
 }
 
 // NewEAddr 新建一个Address。ping为0, 表示未知， honest为true
-func NewEAddr(addr Addr, alias string) *EAddr {
-	return &EAddr{
+func NewEAddr(addr Addr, alias string) EAddr {
+	return EAddr{
 		Addr:  addr,
 		alias: alias,
 	}

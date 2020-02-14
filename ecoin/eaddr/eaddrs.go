@@ -11,7 +11,7 @@ import (
 // 每个节点存储的节点集合。普通用户不必存这么详细，有待删减
 // 包含自身
 type EAddrs struct {
-	m map[string]*EAddr
+	m map[string]EAddr
 	sync.RWMutex	// 修改map中键值对时不需要外边这把写锁（但需要读），但是增加键或删除键需要上写锁
 
 	// 存储相关
@@ -53,7 +53,7 @@ func (eaddrs *EAddrs) SortedValidAddrs() []string {
 }
 
 // EAddr 根据Addr查看EAddr
-func (eaddrs *EAddrs) EAddr(addr Addr) *EAddr {
+func (eaddrs *EAddrs) EAddr(addr Addr) EAddr {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
 	return eaddrs.m[addr.String()]
@@ -61,31 +61,51 @@ func (eaddrs *EAddrs) EAddr(addr Addr) *EAddr {
 
 // SetEAddr 设置/更新EAddr
 // 修改EAddr时，建议直接读出来拷贝一份再传回
-func (eaddrs *EAddrs) SetEAddr(eaddr *EAddr) {
+func (eaddrs *EAddrs) SetEAddr(eaddr EAddr) {
 	eaddrs.Lock()
 	defer eaddrs.Unlock()
 	eaddrs.m[eaddr.Addr.String()] = eaddr
+}
+
+// SetEAddrBatch 批量设置/更新EAddr
+// 修改EAddr时，建议直接读出来拷贝一份再传回
+func (eaddrs *EAddrs) SetEAddrBatch(eaddrBatch ...EAddr) {
+	eaddrs.Lock()
+	defer eaddrs.Unlock()
+
+	for _, v := range eaddrBatch {
+		eaddrs.m[v.Addr.String()] = v
+	}
 }
 
 // EAddrPingStart 开始ping一个Addr
 func (eaddrs *EAddrs) EAddrPingStart(addr Addr) {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
-	eaddrs.m[addr.String()].PingStart()
+	addrStr := addr.String()
+	eaddr := eaddrs.m[addrStr]
+	eaddr.PingStart()
+	eaddrs.m[addrStr] = eaddr
 }
 
 // EAddrPingEnd 结束ping一个Addr，将时延记录
 func (eaddrs *EAddrs) EAddrPingStop(addr Addr) {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
-	eaddrs.m[addr.String()].PingStop()
+	addrStr := addr.String()
+	eaddr := eaddrs.m[addrStr]
+	eaddr.PingStop()
+	eaddrs.m[addrStr] = eaddr
 }
 
 // Record 记录某个Addr的某个行为
-func (eaddrs *EAddrs) Record(a Addr, behaviour uint8) {
+func (eaddrs *EAddrs) Record(addr Addr, behaviour uint8) {
 	eaddrs.RLock()
 	defer eaddrs.RUnlock()
-	eaddrs.m[a.String()].Record(behaviour)
+	addrStr := addr.String()
+	eaddr := eaddrs.m[addrStr]
+	eaddr.Record(behaviour)
+	eaddrs.m[addrStr] = eaddr
 }
 
 func (eaddrs *EAddrs) Save() error {
@@ -130,7 +150,7 @@ func (eaddrs *EAddrs) Load() error {
 		return utils.WrapError("EAddrs_Load", err)
 	}
 	db.IterDB(func(k, v []byte) error {
-		eaddr := &EAddr{}
+		eaddr := EAddr{}
 		if err = eaddr.Deserialize(v); err != nil {
 			return err
 		}
@@ -150,3 +170,12 @@ func (eaddrs *EAddrs) IsAddrValid(addr Addr) bool {
 	eaddr := eaddrs.m[addr.String()]
 	return eaddr.honest && eaddr.reachable
 }
+
+
+func NewEAddrs() *EAddrs {
+	return &EAddrs{
+		m:        make(map[string]EAddr),
+		RWMutex:  sync.RWMutex{},
+	}
+}
+
