@@ -2,8 +2,10 @@ package net
 
 import (
 	"bytes"
+	"encoding/gob"
 	"github.com/azd1997/Ecare/ecoin/account"
 	"github.com/azd1997/Ecare/ecoin/blockchain/singlechain"
+	"github.com/azd1997/Ecare/ecoin/common"
 	"github.com/azd1997/Ecare/ecoin/eaddr"
 	eaccount "github.com/azd1997/Ecare/ecoin/ecoinaccount"
 	"github.com/azd1997/Ecare/ecoin/log"
@@ -17,6 +19,9 @@ import (
 
 type TCPNode struct {
 
+	// NodeVersion
+	Version uint8
+
 	// TCPServer相关配置
 	Listener net.Listener
 	Addr     eaddr.Addr
@@ -24,14 +29,16 @@ type TCPNode struct {
 
 
 	// 其他
-	Account   account.Account
-	Chain     singlechain.Chain
+	Account   *account.Account
+	Chain     *singlechain.Chain
 	EAccounts eaccount.IEcoinAccounts
-	EAddrs    eaddr.EAddrs
+	EAddrs    *eaddr.EAddrs
 }
 
 func NewTCPNode(args *Args) *TCPNode {
 	return &TCPNode{
+		Version:args.NodeVersion,
+
 		Addr: eaddr.Addr{
 			Ip:   args.Ip,
 			Port: args.Port,
@@ -79,28 +86,28 @@ func (n *TCPNode) Start() {
 func (n *TCPNode) HandleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	// 读取请求
-	request, err := ioutil.ReadAll(conn)
+	// 把req全部读出读取出来(各种消息)
+	req, err := ioutil.ReadAll(conn)
 	if err != nil {
 		log.Error("TCPNode_HandleConn", err)
 	}
 
-	// 获取command
-	cmd := uint8(request[0])
-	log.Info("Received %s command\n", CmdMap[cmd])
+	log.Info("Received %s command\n", CmdMap[req[0]])
 
 	// 根据命令交由不同handler去处理
-	switch cmd {
+	switch req[0] {
 	case CmdPing:
-		n.HandlePing(conn)
+		n.HandlePing(req[1:])
 	case CmdPong:
-		n.HandlePong()
+		n.HandlePong(req[1:])
+	case CmdGetAddrs:
+		n.HandleGetAddrs(req[1:])
 	case CmdAddrs:
-		n.HandleAddrs(conn, request[1:])
-	case CmdInv:
-		n.HandleInv(conn, request[1:])
+		n.HandleAddrs(req[1:])
 	case CmdVersion:
-		n.HandleVersion(conn, request[1:])
+		n.HandleVersion(req[1:])
+	case CmdInv:
+		n.HandleInventory(req[1:])
 	case CmdBlock:
 		n.HandleBlock(conn, request[1:])
 	}
@@ -108,25 +115,37 @@ func (n *TCPNode) HandleConnection(conn net.Conn) {
 
 //====================================Ping-Pong=======================================
 
-func (n *TCPNode) Ping(to eaddr.Addr) {
-	req := []byte{CmdPing}
-	conn, _ := net.Dial(PROTOCOL, to.String())
-	_, _ = conn.Write(req)
+// TODO: 还有个问题待解决：何时Ping，如何触发
+
+func (n *TCPNode) Ping(to string) {
+	// 开始Ping
+	n.EAddrs.EAddrPingStartStr(to)
+
+	pingmsg := common.PingMsg{AddrFrom: n.Addr.String()}
+	payload, _ := utils.GobEncode(pingmsg)
+	req := append([]byte{CmdPing}, payload...)
+	_ = n.SendData(to, req)
 }
 
-func (n *TCPNode) HandlePing(conn net.Conn) {
-	response := []byte{CmdPong}
-	_, _ = conn.Write(response)
+func (n *TCPNode) HandlePing(req []byte) {
+	// 解析req
+	pingmsg := &common.PingMsg{}
+	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(pingmsg)
+	pingfrom := pingmsg.AddrFrom
+	// 返回resp
+	pongmsg := &common.PongMsg{AddrFrom:n.Addr.String()}
+	payload, _ := utils.GobEncode(pongmsg)
+	resp := append([]byte{CmdPong}, payload...)
+	_ = n.SendData(pingfrom, resp)
 }
 
-func (n *TCPNode) HandlePong(conn net.Conn) {
-	// 获取远程主机地址。 （事实上，在Ping-Pong过程中返回Pong的一定是你主动发起连接的目标主机。
-	// 可以通过让返回的Pong包含这个地址信息，也可以像这样获取出来，都行）
-	tcpaddr, _ := net.ResolveTCPAddr(conn.RemoteAddr().Network(), conn.RemoteAddr().String())
-	addr := eaddr.Addr{Ip: tcpaddr.IP.String(), Port: tcpaddr.Port}
-
-	// Ping stop， 处理总耗时
-	n.EAddrs.EAddrPingStop(addr)
+func (n *TCPNode) HandlePong(req []byte) {
+	// 解析req
+	pongmsg := &common.PongMsg{}
+	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(pongmsg)
+	pongfrom := pongmsg.AddrFrom
+	// 处理pong
+	n.EAddrs.EAddrPingStopStr(pongfrom)
 }
 
 
@@ -135,34 +154,86 @@ func (n *TCPNode) HandlePong(conn net.Conn) {
 // Addrs的场景
 // 1. 节点上线时向seed节点(可能是写死的或者自选的)请求节点列表，seed节点随之将其节点列表打包发回
 // 2. 节点注册时，藉由注册命令，seed节点会将该节点地址向其他节点扩散。
+// TODO: 尽管注册行为使用msg更方便，但使用交易实现会更体现行为历史可追溯的特性
+// TODO: 注册流程：本地新建账号，本地监听端口(仅H/R需要)，将账号信息、节点地址信息、身份信息
+//  使用注册医院的公钥进行加密（患者可加密，其他角色需要公示），构建交易，发往工人组，此称为注册交易。
+//  工人节点接收到注册交易时不作其他检查，只检查是否来自该地址IP是否过于频繁的注册
+//  （注册交易也用于更新账户信息）。
+//  当注册医院收到这个链上确认的注册交易后，如果是患者的注册，它需要解密患者身份信息，记录下来
 
-func (n *TCPNode) SendGetAddrs(to eaddr.Addr) {
-	req := []byte{CmdGetAddrs}
-	conn, _ := net.Dial(PROTOCOL, to.String())
-	_, _ = conn.Write(req)
+
+// 作为客户端发起请求，需要附带自己的节点地址（这和系统提供的客户端随机port不同）
+func (n *TCPNode) SendGetAddrs(to string) {
+	payload, _ := utils.GobEncode(common.GetAddrsMsg{AddrFrom:n.Addr.String()})
+	req := append([]byte{CmdGetAddrs}, payload...)
+	_ = n.SendData(to, req)
+	log.Info("TCPNode_SendGetAddrs: send GetAddrsMsg to %s", to)
 }
 
-func (n *TCPNode) HandleGetAddrs(conn net.Conn) {
-	addrs := n.EAddrs.ValidAddrs()
-	payload, _ := utils.GobEncode(addrs)
-	resp := append([]byte{CmdAddrs}, payload...)
-	_, _ = conn.Write(resp)
+func (n *TCPNode) HandleGetAddrs(req []byte) {
+	// 检查GetAddrMsg
+	getAddrsMsg := &common.GetAddrsMsg{}
+	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(getAddrsMsg)
+	gamFrom := getAddrsMsg.AddrFrom
+
+	// 1. 检查来者的节点地址(不是client地址)
+	// 如果from不诚实或者未注册
+	if !n.EAddrs.IsAddrStrHonest(gamFrom) {
+		return
+	}
+
+	// 2. 收集本地存有的节点列表，返回
+	n.SendAddrs(gamFrom)
 }
 
-func (n *TCPNode) HandleAddrs(conn net.Conn) {
-	addrs := n.EAddrs.ValidAddrs()
-	payload, _ := utils.GobEncode(addrs)
-	resp := append([]byte{CmdGetAddrs}, payload...)
-	_, _ = conn.Write(resp)
+// 作为客户端发起请求，需要附带自己的节点地址（这和系统提供的客户端随机port不同）
+func (n *TCPNode) SendAddrs(to string) {
+	addrs := n.EAddrs.ValidAddrs()		// 发给别人没必要排序，因为不具备参考性
+	payload, _ := utils.GobEncode(common.AddrsMsg{AddrFrom:n.Addr.String(), LocalAddrs:addrs})
+	req := append([]byte{CmdAddrs}, payload...)
+	_ = n.SendData(to, req)
+	log.Info("TCPNode_SendAddrs: send addrs %v to %s", addrs, to)
+}
+
+// 接收对方发来的Addrs
+func (n *TCPNode) HandleAddrs(req []byte) {
+	// 检查AddrsMsg
+	addrsMsg := &common.AddrsMsg{}
+	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(addrsMsg)
+	amFrom, addrs := addrsMsg.AddrFrom, addrsMsg.LocalAddrs
+
+	log.Info("TCPNode_HandleAddrs: received addrs %v", addrs)
+
+	// 接下来需要将addrs与本地Addrs合并
+	n.EAddrs.MergeAddrs(addrs)
+
+	// TODO: 对方正常响应你的请求，是否考虑记录合规行为
+	n.EAddrs.RecordStr(amFrom, eaddr.GoodAddrs)
 }
 
 //====================================EAddrs=======================================
 
 //====================================Version=======================================
 
-type Version struct {
-	NodeVer uint8
-	ChainHeight int
+// VersionMsg的逻辑是：
+// 当节点新上线请求同步区块链时，需先发送Verion消息(主要记录当前链的长度)给对方，
+// 对方返回Version消息。
+// HandleVersion: 如果自己更长，version回发，等待对方请求进一步的数据；如果对方更长，
+
+func (n *TCPNode) SendVersion(to string) {
+
+}
+
+func (n *TCPNode) HandleVersion(req []byte) {
+
+}
+
+
+func (n *TCPNode) SendInventory(to string) {
+
+}
+
+func (n *TCPNode) HandleInventory(req []byte) {
 
 }
 

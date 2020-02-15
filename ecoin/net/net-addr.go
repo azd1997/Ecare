@@ -10,7 +10,7 @@ import (
 )
 
 // SendAddrs 向对方发送自己存有的L1集合。通常为A类节点调用
-func (n *TCPNode) SendAddrs(to eaddr.Addr) (err error) {
+func (n *TCPNode) SendAddrs1(to eaddr.Addr) (err error) {
 	// 得到所有可用的转发节点集合
 	n.EAddrs.RLock()
 	nodeList := n.EAddrs.ValidAddrs()

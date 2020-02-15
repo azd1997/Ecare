@@ -78,6 +78,28 @@ func (eaddrs *EAddrs) SetEAddrBatch(eaddrBatch ...EAddr) {
 	}
 }
 
+// MergeAddrs 一次性合并一个接收到的地址列表
+func (eaddrs *EAddrs) MergeAddrs(addr_s []string) {
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+
+	length := len(addr_s)
+	var tmp EAddr
+	eaddr_s := make([]EAddr, 0, length)
+	for _, addrStr := range addr_s {
+		if _, ok := eaddrs.m[addrStr]; ok {
+			continue
+		}
+		tmp = NewEAddr(NewAddr(addrStr), "")
+		// 初始设置为诚实/可达
+		tmp.setHonest(true)
+		tmp.setReachable(true)
+		eaddr_s = append(eaddr_s, tmp)
+	}
+
+	eaddrs.SetEAddrBatch(eaddr_s...)
+}
+
 // EAddrPingStart 开始ping一个Addr
 func (eaddrs *EAddrs) EAddrPingStart(addr Addr) {
 	eaddrs.RLock()
@@ -86,6 +108,16 @@ func (eaddrs *EAddrs) EAddrPingStart(addr Addr) {
 	eaddr := eaddrs.m[addrStr]
 	eaddr.PingStart()
 	eaddrs.m[addrStr] = eaddr
+}
+
+// EAddrPingStart 开始ping一个Addr
+func (eaddrs *EAddrs) EAddrPingStartStr(addr string) {
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+
+	eaddr := eaddrs.m[addr]
+	eaddr.PingStart()
+	eaddrs.m[addr] = eaddr
 }
 
 // EAddrPingEnd 结束ping一个Addr，将时延记录
@@ -98,6 +130,16 @@ func (eaddrs *EAddrs) EAddrPingStop(addr Addr) {
 	eaddrs.m[addrStr] = eaddr
 }
 
+// EAddrPingEnd 结束ping一个Addr，将时延记录
+func (eaddrs *EAddrs) EAddrPingStopStr(addr string) {
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+
+	eaddr := eaddrs.m[addr]
+	eaddr.PingStop()
+	eaddrs.m[addr] = eaddr
+}
+
 // Record 记录某个Addr的某个行为
 func (eaddrs *EAddrs) Record(addr Addr, behaviour uint8) {
 	eaddrs.RLock()
@@ -106,6 +148,16 @@ func (eaddrs *EAddrs) Record(addr Addr, behaviour uint8) {
 	eaddr := eaddrs.m[addrStr]
 	eaddr.Record(behaviour)
 	eaddrs.m[addrStr] = eaddr
+}
+
+// RecordStr 记录某个Addr的某个行为
+func (eaddrs *EAddrs) RecordStr(addr string, behaviour uint8) {
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+
+	eaddr := eaddrs.m[addr]
+	eaddr.Record(behaviour)
+	eaddrs.m[addr] = eaddr
 }
 
 func (eaddrs *EAddrs) Save() error {
@@ -163,12 +215,39 @@ func (eaddrs *EAddrs) Load() error {
 
 // TODO: 其他各种方法
 
+// TODO: 值得注意的是：未注册节点，也就是在哈希表中不存在的，
+//  其由于honest,reachable默认为false，也是无法通过下面四个检查的，这正合逻辑：注册用户方有权限
+
 // IsAddrValid 查看Addr是否有效
 func (eaddrs *EAddrs) IsAddrValid(addr Addr) bool {
 	eaddrs.RWMutex.RLock()
 	defer eaddrs.RWMutex.RUnlock()
 	eaddr := eaddrs.m[addr.String()]
 	return eaddr.honest && eaddr.reachable
+}
+
+// IsAddrStrValid 查看Addr是否有效
+func (eaddrs *EAddrs) IsAddrStrValid(addr string) bool {
+	eaddrs.RWMutex.RLock()
+	defer eaddrs.RWMutex.RUnlock()
+	eaddr := eaddrs.m[addr]
+	return eaddr.honest && eaddr.reachable
+}
+
+// IsAddrValid 查看Addr是否诚实
+func (eaddrs *EAddrs) IsAddrHonest(addr Addr) bool {
+	eaddrs.RWMutex.RLock()
+	defer eaddrs.RWMutex.RUnlock()
+	eaddr := eaddrs.m[addr.String()]
+	return eaddr.honest
+}
+
+// IsAddrStrHonest 查看Addr是否诚实
+func (eaddrs *EAddrs) IsAddrStrHonest(addr string) bool {
+	eaddrs.RWMutex.RLock()
+	defer eaddrs.RWMutex.RUnlock()
+	eaddr := eaddrs.m[addr]
+	return eaddr.honest
 }
 
 

@@ -15,6 +15,7 @@ const (
 const (
 	GoodUnknown = 100 + iota
 	GoodBlock   // 出了一个好的区块
+	GoodAddrs	// 积极回复了我的GetAddrsMsg
 )
 
 // Credit
@@ -27,6 +28,7 @@ var CreditPolicy = map[uint8]int{
 	// 合规情况
 	GoodUnknown: 1,
 	GoodBlock:   1,
+	GoodAddrs:1,
 }
 
 

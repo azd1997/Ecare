@@ -10,15 +10,18 @@ import (
 // Args 外部数据结构的参数，如区块链、数据存储...，注入到P2P节点中以方便调用
 type Args struct {
 
+	// 节点版本
+	NodeVersion uint8
+
 	// Server参数
 	Ip string
 	Port int
 	Name string
 
 
-	Account account.Account
+	Account *account.Account
 
-	Chain    singlechain.Chain
+	Chain    *singlechain.Chain
 	EAccouts eaccount.IEcoinAccounts
-	EAddrs   eaddr.EAddrs
+	EAddrs   *eaddr.EAddrs
 }

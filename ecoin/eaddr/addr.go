@@ -2,6 +2,7 @@ package eaddr
 
 import (
 	"fmt"
+	"net"
 )
 
 type Addr struct {
@@ -27,6 +28,13 @@ func (a Addr) IsValid(eaddrs *EAddrs) bool {
 	}
 
 	return true
+}
+
+// NewAddr 将地址字符串转为Addr结构体
+func NewAddr(addr string) Addr {
+	tcpaddr, err := net.ResolveTCPAddr("tcp4", addr)
+	if err != nil {return Addr{}}
+	return Addr{tcpaddr.IP.String(), tcpaddr.Port}
 }
 
 // 关于Addr的失信应该和账户状态一样也起一个集合存储并更新

@@ -1,7 +1,7 @@
 package net
 
 const (
-	CmdUnknown uint8 = iota
+	CmdUnknown byte = iota
 	CmdPing
 	CmdPong
 	CmdGetAddrs
@@ -14,6 +14,6 @@ const (
 
 )
 
-var CmdMap = map[uint8]string{
+var CmdMap = map[byte]string{
 	CmdUnknown: "unknown",
 }

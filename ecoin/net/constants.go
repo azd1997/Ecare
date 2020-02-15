@@ -19,7 +19,7 @@ const (
 
 )
 
-var MsgType = map[uint32]string{
+var MsgType = map[uint8]string{
 	UnknownMsg: "unknown",
 	PingMsg: "ping",
 	PongMsg: "pong",

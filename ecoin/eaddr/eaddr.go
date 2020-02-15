@@ -255,7 +255,7 @@ func (eaddr *EAddr) IsValid() bool {
 
 type eAddr struct {
 	Addr  Addr
-	Alias string
+	Alias string	// 别名，设不设无所谓，主要在于本地自己可以选择修改备注，以改善交互体验
 	UserId account.UserId
 
 	PingDelay time.Duration
