@@ -52,6 +52,8 @@ type EAddr struct {
 	badRecords  *BadRecord // 这个链表一直从头部插入。（某种意义上是个栈）链头节点（也就是这个）就是最新的作恶记录
 	//badRecordLock sync.RWMutex
 
+	// sync
+
 }
 
 

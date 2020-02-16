@@ -10,8 +10,6 @@ import (
 	eaccount "github.com/azd1997/Ecare/ecoin/ecoinaccount"
 	"github.com/azd1997/Ecare/ecoin/log"
 	"github.com/azd1997/Ecare/ecoin/utils"
-	"github.com/azd1997/ego/enet/etcp"
-	"io"
 	"io/ioutil"
 	"net"
 )
@@ -33,6 +31,9 @@ type TCPNode struct {
 	Chain     *singlechain.Chain
 	EAccounts eaccount.IEcoinAccounts
 	EAddrs    *eaddr.EAddrs
+
+	// 待传输区块队列
+	BlockInTransit []singlechain.Block
 }
 
 func NewTCPNode(args *Args) *TCPNode {
@@ -98,19 +99,38 @@ func (n *TCPNode) HandleConnection(conn net.Conn) {
 	switch req[0] {
 	case CmdPing:
 		n.HandlePing(req[1:])
-	case CmdPong:
-		n.HandlePong(req[1:])
 	case CmdGetAddrs:
 		n.HandleGetAddrs(req[1:])
 	case CmdAddrs:
 		n.HandleAddrs(req[1:])
 	case CmdVersion:
 		n.HandleVersion(req[1:])
-	case CmdInv:
+	case CmdGetInventory:
+		n.HandleGetInventory(req[1:])
+	case CmdInventory:
 		n.HandleInventory(req[1:])
 	case CmdBlock:
-		n.HandleBlock(conn, request[1:])
+		n.HandleBlock(req[1:])
 	}
+}
+
+//====================================CheckAddr=======================================
+
+// 检查并处理发信人的地址，返回发信人是否诚实，不诚实，就别往下执行了
+func (n *TCPNode) checkAndHandleAddrFrom(addr string) (honest bool) {
+	contained, honest, reachable := n.EAddrs.ContainsAndHonestAndReachable(addr)
+	if !contained {
+		// 加入到本地
+		n.EAddrs.AddAddrStr(addr)
+		return true	// 初始化为诚实
+	}
+	if !honest {
+		return false
+	}
+	if !reachable {		// 原本包含该地址但不可达，现在需要修改状态
+		n.EAddrs.SetEAddrReachable(addr, true)
+	}
+	return true
 }
 
 //====================================Ping-Pong=======================================
@@ -131,25 +151,21 @@ func (n *TCPNode) HandlePing(req []byte) {
 	// 解析req
 	pingmsg := &common.PingMsg{}
 	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(pingmsg)
-	pingfrom := pingmsg.AddrFrom
+	from, pong := pingmsg.AddrFrom, pingmsg.Pong
 	// 返回resp
-	pongmsg := &common.PongMsg{AddrFrom:n.Addr.String()}
-	payload, _ := utils.GobEncode(pongmsg)
-	resp := append([]byte{CmdPong}, payload...)
-	_ = n.SendData(pingfrom, resp)
-}
-
-func (n *TCPNode) HandlePong(req []byte) {
-	// 解析req
-	pongmsg := &common.PongMsg{}
-	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(pongmsg)
-	pongfrom := pongmsg.AddrFrom
-	// 处理pong
-	n.EAddrs.EAddrPingStopStr(pongfrom)
+	if pong {
+		// 处理pong
+		n.EAddrs.EAddrPingStopStr(from)
+	} else {
+		pongmsg := &common.PingMsg{AddrFrom:n.Addr.String(), Pong:true}
+		payload, _ := utils.GobEncode(pongmsg)
+		resp := append([]byte{CmdPing}, payload...)
+		_ = n.SendData(from, resp)
+	}
 }
 
 
-//====================================Addrs=======================================
+//====================================GetAddrs=======================================
 
 // Addrs的场景
 // 1. 节点上线时向seed节点(可能是写死的或者自选的)请求节点列表，seed节点随之将其节点列表打包发回
@@ -161,6 +177,12 @@ func (n *TCPNode) HandlePong(req []byte) {
 //  （注册交易也用于更新账户信息）。
 //  当注册医院收到这个链上确认的注册交易后，如果是患者的注册，它需要解密患者身份信息，记录下来
 
+
+// TODO: 节点地址和账户不应该绑定，节点的问题封节点，账户的问题封账户
+// 账户必须注册，注册通过发送注册交易，，而后被所有共识组缓存到本地，这称为注册账户表
+// 每次检查交易/区块之前要检查构建者及接收者是否已注册
+// 至于节点，节点只会拦截搞了破坏的节点的请求
+// 节点不要求注册，账号要求注册
 
 // 作为客户端发起请求，需要附带自己的节点地址（这和系统提供的客户端随机port不同）
 func (n *TCPNode) SendGetAddrs(to string) {
@@ -177,14 +199,18 @@ func (n *TCPNode) HandleGetAddrs(req []byte) {
 	gamFrom := getAddrsMsg.AddrFrom
 
 	// 1. 检查来者的节点地址(不是client地址)
-	// 如果from不诚实或者未注册
-	if !n.EAddrs.IsAddrStrHonest(gamFrom) {
+
+	// 1. 判断该地址是否有不良记录
+	if honest := n.checkAndHandleAddrFrom(gamFrom); !honest {
 		return
 	}
 
 	// 2. 收集本地存有的节点列表，返回
 	n.SendAddrs(gamFrom)
 }
+
+//====================================Addrs=======================================
+
 
 // 作为客户端发起请求，需要附带自己的节点地址（这和系统提供的客户端随机port不同）
 func (n *TCPNode) SendAddrs(to string) {
@@ -202,6 +228,11 @@ func (n *TCPNode) HandleAddrs(req []byte) {
 	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(addrsMsg)
 	amFrom, addrs := addrsMsg.AddrFrom, addrsMsg.LocalAddrs
 
+	// 0. 判断该地址是否有不良记录
+	if honest := n.checkAndHandleAddrFrom(amFrom); !honest {
+		return
+	}
+
 	log.Info("TCPNode_HandleAddrs: received addrs %v", addrs)
 
 	// 接下来需要将addrs与本地Addrs合并
@@ -211,7 +242,6 @@ func (n *TCPNode) HandleAddrs(req []byte) {
 	n.EAddrs.RecordStr(amFrom, eaddr.GoodAddrs)
 }
 
-//====================================EAddrs=======================================
 
 //====================================Version=======================================
 
@@ -221,96 +251,140 @@ func (n *TCPNode) HandleAddrs(req []byte) {
 // HandleVersion: 如果自己更长，version回发，等待对方请求进一步的数据；如果对方更长，
 
 func (n *TCPNode) SendVersion(to string) {
-
+	versionMsg := common.VersionMsg{
+		AddrFrom:n.Addr.String(),
+		NodeVersion:n.Version,
+		MaxBlockID:n.Chain.MaxBlockID,
+		LatestBlockHash:n.Chain.LastHash,
+		SecondLatestBlockHash:n.Chain.SecondLastHash,
+	}
+	payload, _ := utils.GobEncode(versionMsg)
+	req := append([]byte{CmdVersion}, payload...)
+	_ = n.SendData(to, req)
 }
 
 func (n *TCPNode) HandleVersion(req []byte) {
+	// 解码请求
+	versionMsg := &common.VersionMsg{}
+	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(versionMsg)
 
+	// 处理VersionMsg : B收到A的VersionMsg:
+	// B比A长：检查A的Maxid在B本地链上的区块，是否一致，
+	// 		一致，则将自身的verion返回，等对方请求自己的inventory
+	//		不一致，将自身version返回，并且自己向其他所有节点请求version消息
+	//		（这里需要一个临时的集合，用来收集所有回返信息，最后多者作为正确答案）
+	// A比B长：B先检查A的两个哈希是否能直接校验，不能再向对方请求inventory
+
+	// 0. 判断该地址是否有不良记录
+	if honest := n.checkAndHandleAddrFrom(versionMsg.AddrFrom); !honest {
+		return
+	}
+
+	// 1. 比较NodeVersion,不等于就是错了，不响应
+	if versionMsg.NodeVersion != n.Version {
+		return
+	}
+
+	// TODO: 暂时不使用VersionMsg的其他字段
+
+	// 2. 比较MaxID
+	if versionMsg.MaxBlockID == n.Chain.MaxBlockID {
+		// 暂时 do nothing
+	} else if versionMsg.MaxBlockID > n.Chain.MaxBlockID {
+		// 请求区块存证
+		n.SendGetInventory(versionMsg.AddrFrom, common.InvBlock)
+	} else {	// 自身比对方链长
+		n.SendVersion(versionMsg.AddrFrom)
+	}
 }
 
+//====================================GetInventory=======================================
 
-func (n *TCPNode) SendInventory(to string) {
 
+// 向目标发送获取区块或存证消息
+func (n *TCPNode) SendGetInventory(to string, invType uint8) {
+	giMsg := &common.GetInventoryMsg{AddrFrom:n.Addr.String(), InvType:invType}
+	payload, _ := utils.GobEncode(giMsg)
+	req := append([]byte{CmdGetInventory}, payload...)
+	_ = n.SendData(to, req)
 }
+
+// 处理GetInventory消息
+func (n *TCPNode) HandleGetInventory(req []byte) {
+	// 解码
+	giMsg := &common.GetInventoryMsg{}
+	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(giMsg)
+
+	// 0. 判断该地址是否有不良记录
+	if honest := n.checkAndHandleAddrFrom(giMsg.AddrFrom); !honest {
+		return
+	}
+
+	// 处理
+	switch giMsg.InvType {
+	case common.InvBlock:
+		n.SendInventory(giMsg.AddrFrom, common.InvBlock)
+	case common.InvTx:
+		// 用于收集到新交易同步
+	default:
+		//TODO: 错误的存证代号，作出相应惩处
+	}
+}
+
+//====================================Inventory=======================================
+
+// 发送存证信息
+func (n *TCPNode) SendInventory(to string, invType uint8) {
+	invMsg := &common.InventoryMsg{AddrFrom:n.Addr.String(), InvType:invType}
+	switch invType {
+	case common.InvBlock:
+		// 暂且一股脑将所有区块哈希发过去
+		hashes, _ := n.Chain.GetBlockHashes()
+		invMsg.Invs = hashes
+	case common.InvTx:
+		// TODO
+	}
+
+	payload, _ := utils.GobEncode(invMsg)
+	req := append([]byte{CmdInventory}, payload...)
+	_ = n.SendData(to, req)
+}
+
 
 func (n *TCPNode) HandleInventory(req []byte) {
+	// 解码
+	invMsg := &common.InventoryMsg{}
+	_ = gob.NewDecoder(bytes.NewReader(req)).Decode(invMsg)
 
+	if honest := n.checkAndHandleAddrFrom(invMsg.AddrFrom); !honest {
+		return
+	}
+
+	// 处理
+	switch invMsg.InvType {
+	case common.InvBlock:
+		blockHashes := invMsg.Invs
+		// 暂且不考虑对方与自己不在同一链的情况，收到存证之后，应该将存证加入一个待传输区块队列，
+		// 这个队列维护在TCPNode中
+		n.BlockInTransit
+
+	case common.InvTx:
+		// 待处理
+	default:
+		// 作恶，待处理
+	}
 }
 
+//====================================111=======================================
 
 
 
 
 
-func checkNodeFirst(conn etcp.IConnection) {
-
-}
-
-// 客户端方法
-
-// Push 将本地数据推送给远程节点。 key相当于cmd，value是目标数据， version用于索引。例如获取区块数据, key=block, value=blockdata, version=blocknum
-func (n *TCPNode) Push(remote *Address, key string, value []byte, version []byte)  error {
 
 
-	// 连接远程节点服务端
-	conn, err := net.Dial(PROTOCOL, remote.Ipv4Port)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
 
-	// 格式 op(push/pull) + key + versionLength + version + valuelength + value
-	// (op占1字节 + key占8B，
-	// versionLength 使用uint8，占1B， version为哈希（区块哈希、交易哈希）,
-	// valuelength使用int，占4B/8B，具体使用时需要先判断下)
-	data := bytes.Join([][]byte{
-		[]byte{Push},	// 1B
-		[]byte(key),	// 8B
-		[]byte{uint8(len(version))},	// 1B
-		version,		// len(Hash)
-		utils.Uint32ToBytes(uint32(len(value))),
-	}, nil)
 
-	//将data []byte复制一份通过conn发给对方
-	_, err = io.Copy(conn, bytes.NewReader(data))
-	if err != nil {
-		return utils.WrapError("Push", err)
-	}
-	return nil
 
-}
-
-// Pull 从远程拉取数据
-func (n *TCPNode) Pull(remote Address, key string, version []byte) error {
-
-	// 连接远程节点服务端
-	conn, err := net.Dial(PROTOCOL, remote.Ipv4Port)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	// 格式 op(push/pull) + key + versionLength + version + valuelength + value
-	// (op占1字节 + key占8B，
-	// versionLength 使用uint8，占1B， version为哈希（区块哈希、交易哈希）,
-	// valuelength使用int，占4B/8B，具体使用时需要先判断下)
-	data := bytes.Join([][]byte{
-		[]byte{Pull},	// 1B
-		[]byte(key),	// 8B
-		[]byte{uint8(len(version))},	// 1B
-		version,		// len(Hash)
-	}, nil)
-
-	//将data []byte复制一份通过conn发给对方
-	_, err = io.Copy(conn, bytes.NewReader(data))
-	if err != nil {
-		return utils.WrapError("Pull", err)
-	}
-	return nil
-}
-
-// PullNPush 向远程拉取数据，并与本地比较，更新本地或者将本地的更新数据推给远程。 这种方式收敛最快。
-// 具体实现由调用方组合Push&Pull，这里不作具体实现或函数传递
-func (n *TCPNode) PullAndPush(key string, version []byte) {}
 
 

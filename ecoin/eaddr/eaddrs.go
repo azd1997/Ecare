@@ -244,10 +244,47 @@ func (eaddrs *EAddrs) IsAddrHonest(addr Addr) bool {
 
 // IsAddrStrHonest 查看Addr是否诚实
 func (eaddrs *EAddrs) IsAddrStrHonest(addr string) bool {
-	eaddrs.RWMutex.RLock()
-	defer eaddrs.RWMutex.RUnlock()
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
 	eaddr := eaddrs.m[addr]
 	return eaddr.honest
+}
+
+// Contains 包含有某个地址？
+func (eaddrs *EAddrs) Contains(addr string) bool {
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+	if _, ok := eaddrs.m[addr]; ok {
+		return true
+	} else {return false}
+}
+
+// ContainsAndHonestAndReachable 包含有某个地址？该地址如果存在，是否诚实？是否原本不可达
+func (eaddrs *EAddrs) ContainsAndHonestAndReachable(addr string) (contained bool, honest bool, reachable bool) {
+	eaddrs.RLock()
+	defer eaddrs.RUnlock()
+	if v, ok := eaddrs.m[addr]; ok {
+		contained = true
+		honest = v.honest
+		reachable = v.reachable
+		return
+	} else {return}	// 不存在，则都返回false
+}
+
+// AddAddr 初次添加地址
+func (eaddrs *EAddrs) AddAddrStr(addr string) {
+	eaddrs.Lock()
+	defer eaddrs.Unlock()
+	if _, ok := eaddrs.m[addr]; !ok {
+		eaddrs.SetEAddr(NewEAddr(NewAddr(addr), ""))
+	}
+}
+
+func (eaddrs *EAddrs) SetEAddrReachable(addr string, reachable bool) {
+	eaddrs.Lock()
+	defer eaddrs.Unlock()
+	eaddr := eaddrs.m[addr]
+	eaddr.reachable = reachable
 }
 
 

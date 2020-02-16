@@ -2,21 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f8c5013-be63-48a1-a983-cc2da3ff1566" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/ecoin/common/msg.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/erro/net.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ecoin/utils/encode_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/eaddr/addr.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/eaddr/addr.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/eaddr/bad.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/eaddr/bad.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/blockchain/singlechain/chain.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/blockchain/singlechain/chain.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ecoin/common/msg.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/common/msg.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ecoin/eaddr/eaddr.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/eaddr/eaddr.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ecoin/eaddr/eaddrs.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/eaddr/eaddrs.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/address.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/address_test.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/args.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/args.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ecoin/net/cmd.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/cmd.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/constants.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/constants.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/net-addr.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/net-addr.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ecoin/net/net-data.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/net-data.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ecoin/net/node.go" beforeDir="false" afterPath="$PROJECT_DIR$/ecoin/net/node.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />

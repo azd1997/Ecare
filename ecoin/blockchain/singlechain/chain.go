@@ -1,7 +1,9 @@
 package singlechain
 
 import (
+	"bytes"
 	"encoding/base64"
+	"encoding/gob"
 	"fmt"
 
 	"github.com/azd1997/ego/ecrypto"
@@ -27,7 +29,9 @@ type ContinueChainArgs struct {
 
 // Chain 区块链
 type Chain struct {
+	MaxBlockID int
 	LastHash ecrypto.Hash
+	SecondLastHash ecrypto.Hash
 	Db       edatabase.Database
 }
 
@@ -73,6 +77,8 @@ func InitChain(args *InitChainArgs) (c *Chain, err error) {
 
 	return &Chain{
 		LastHash: genesisBlock.Hash,
+		SecondLastHash:ecrypto.ZeroHASH,
+		MaxBlockID:1,
 		Db:       db, // 注意它存了一个badger.DB指针，其生命周期为程序运行时间
 	}, nil
 }
@@ -96,9 +102,20 @@ func ContinueChain(args *ContinueChainArgs) (c *Chain, err error) {
 	if err != nil {
 		return nil, utils.WrapError("ContinueChain", err)
 	}
+	lastBlockBytes, err := db.Get(lastHash)
+	if err != nil {
+		return nil, utils.WrapError("ContinueChain", err)
+	}
+	lastBlock := &Block{}
+	err = gob.NewDecoder(bytes.NewReader(lastBlockBytes)).Decode(lastBlock)
+	if err != nil {
+		return nil, utils.WrapError("ContinueChain", err)
+	}
 
 	return &Chain{
 		LastHash: lastHash,
+		SecondLastHash:lastBlock.PrevHash,
+		MaxBlockID:int(lastBlock.Id),
 		Db:       db,
 	}, nil
 }
@@ -125,6 +142,8 @@ func NewEmptyChain(dbPath string) (c *Chain, err error) {
 
 	return &Chain{
 		LastHash: ecrypto.ZeroHASH,
+		SecondLastHash:ecrypto.ZeroHASH,
+		MaxBlockID:0,
 		Db:       db,
 	}, nil
 }
@@ -167,6 +186,11 @@ func (c *Chain) MineBlock(txs []transaction.TX, txFunc transaction.ValidateTxFun
 		return nil, utils.WrapError("Chain_MineBlock", err)
 	}
 
+	// 更新c.LastHash
+	c.SecondLastHash = c.LastHash
+	c.LastHash = newBlock.Hash
+	c.MaxBlockID++
+
 	return newBlock, nil
 }
 
@@ -193,7 +217,9 @@ func (c *Chain) AddBlock(b *Block) (err error) {
 	}
 
 	// 更新c.LastHash
+	c.SecondLastHash = c.LastHash
 	c.LastHash = b.Hash
+	c.MaxBlockID++
 
 	// TODO： 特殊情况是，久不上线节点请求增区块
 
@@ -220,14 +246,14 @@ func (c *Chain) GetBlockById(id int) (b *Block, err error) {
 	// 0,1,2,...,maxId
 	// -maxId-1, ..., -2, -1
 
-	// 先获取最大
-	maxId, err := c.GetMaxId()
-	if err != nil {
-		return nil, utils.WrapError("Chain_GetBlockById", err)
-	}
+	//// 先获取最大
+	//maxId, err := c.GetMaxId()
+	//if err != nil {
+	//	return nil, utils.WrapError("Chain_GetBlockById", err)
+	//}
 
 	// 检查id参数合理与否
-	if id > maxId || id < (-maxId-1) {
+	if id > c.MaxBlockID || id < (-c.MaxBlockID-1) {
 		return nil, utils.WrapError("Chain_GetBlockById", ErrIdOutOfChainRange)
 	}
 
@@ -237,7 +263,7 @@ func (c *Chain) GetBlockById(id int) (b *Block, err error) {
 	var iterNum int
 	if id >= 0 {
 		// 正向索引
-		iterNum = maxId - id + 1
+		iterNum = c.MaxBlockID - id + 1
 	} else {
 		// 负数索引
 		iterNum = -(id)
@@ -329,6 +355,7 @@ func (c *Chain) PrintBlockHeaders(start, end uint) error {
 }
 
 // GetMaxId 获取本地区块链中最大Id
+// DEPRECATED！ 现在不需要这个方法
 func (c *Chain) GetMaxId() (maxId int, err error) {
 
 	lastBlockBytes, err := c.Db.Get(c.LastHash)

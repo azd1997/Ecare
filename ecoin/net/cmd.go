@@ -3,13 +3,14 @@ package net
 const (
 	CmdUnknown byte = iota
 	CmdPing
-	CmdPong
 	CmdGetAddrs
 	CmdAddrs
-	CmdInv
 	CmdVersion
+	CmdGetInventory
+	CmdInventory
 	CmdBlock
 	CmdGetBlocks
+
 	CmdTx
 
 )
